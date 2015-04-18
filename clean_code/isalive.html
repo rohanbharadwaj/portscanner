@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Distributed Port Scanner</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+    <link rel="shortcut icon" href="images/coffee.ico" type="image/x-icon" />
+    
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+              <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                        Secaffee
+                    </a>
+                </li>
+                <li>
+                    <a href="index.html">Dashboard</a>
+                </li>
+                <li>
+                    <a href="isalive.html">Is Alive</a>
+                </li>
+                <li>
+                    <a href="connect.html">Connect Scan</a>
+                </li>
+                <li>
+                    <a href="syn.html">SYN Scan</a>
+                </li>
+                <li>
+                    <a href="fin.html">FIN Scan</a>
+                </li>
+                <li>
+                    <a href="auto.html">Auto Scan</a>
+                </li>
+                <li>
+                    <a href="reports.html">Reports</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- <div class="col-lg-12">
+                        IS Alive
+                    </div> -->
+                           <div class="row">
+                <div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Check Is Alive
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-pills">
+                                <li class="active"><a href="#singleip" data-toggle="tab">Single IP</a>
+                                </li>
+                                <li><a href="#ipblock" data-toggle="tab">Block of IP's</a>
+                                </li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane fade in active" id="singleip">
+                                    <!-- <h4>Single IP</h4> -->
+                                    <p>
+                                        <form id="single_ip_form" role="form">
+                                        <div class="form-group">
+                                        <div class="col-lg-6">
+                                            <label>IP Address</label>
+                                            <input name="input_ip" class="form-control input-small" placeholder="172.16.2.3">
+                                            <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
+                                            <button type="submit" class="btn btn-default">Scan</button>
+                                         </div>   
+                                        </div>
+                                    </form>
+                                    </p>
+                                </div>
+                                <div class="tab-pane fade" id="ipblock">
+                                    <!-- <h4>Profile Tab</h4> -->
+                                    <p>
+                                        <form id="block_ip_form" role="form">
+                                        <div class="form-group">
+                                        <div class="col-lg-6">
+                                            <label>Block of IP Address</label>
+                                            <input id="input_ipblock" class="form-control input-small" placeholder="172.16.2.3/24">
+                                            <p class="help-block">Enter IP Address block (Ex:172.16.2.3/24)</p>
+                                            <button type="submit" class="btn btn-default">Scan</button>
+                                         </div>   
+                                        </div>
+                                    </form>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+    <script src="js/additional-methods.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $(document).ready(function () {
+        $('#single_ip_form').validate({ // initialize the plugin
+        rules: {
+                input_ip: {
+                    required: true,
+                    ipv4: true;
+                }
+                },
+        submitHandler: function (form) { // for demo
+            alert('valid form submitted'); // for demo
+            return false; // for demo
+        }
+    });
+
+});
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+</body>
+
+</html>
