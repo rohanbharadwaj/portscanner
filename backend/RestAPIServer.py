@@ -33,12 +33,12 @@ def catcher(i, o):
 def get_up(ips):
     """ Tests if host is up """
     icmp = IP(dst=ips)/ICMP()
-    resp, unresp = sr(icmp, timeout=300)
+    resp, unresp = sr(icmp, timeout=30)
     catched = []
 
     oldstdout = sys.stdout
     sys.stdout = open(os.devnull, 'w')
-    resp.summary( lambda(s,r): catcher(r.sprintf("%IP.src%"), catched) )
+    resp.summary( lambda(s,r): catcher(r.sprintf("%IP.src%"), catched) , lfilter = lambda (s,r): r.sprintf("%ICMP.type%") in ICMP_REACHABLE_TYPE)
     sys.stdout = oldstdout
     return catched
 
@@ -305,6 +305,9 @@ if __name__ == "__main__":
         sendAndReceiveObjects(Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
         sendAndReceiveObjects(Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
     # END OF EXAMPLE
+
+    sendAndReceiveObjects(Req(IS_UP_BULK, ["172.24.22.114"]))
+    sendAndReceiveObjects(Req(IS_UP, ["192.168.1.1"]))
 
     while server_alive_for != 0:
         server_alive_for -= 1
