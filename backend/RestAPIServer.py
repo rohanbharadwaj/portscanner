@@ -213,6 +213,19 @@ class RestAPIServer:
         else:
             return web.notfound()
 
+    """
+    Override this method to do custom jobs for your derived RestAPIServer.
+    """
+    def doJob(self, job):
+        if job.type == CONNECT_SCAN:
+            connect_scan(job.IPs, job.ports)
+        elif job.type == TCP_FIN_SCAN:
+            tcpFINScan({x: "" for x in job.IPs}.keys(), job.ports)
+        elif job.type == TCP_SYN_SCAN:
+            tcpSYNScan({x: "" for x in job.IPs}.keys(), job.ports)
+        elif job.type == IS_UP or job.type == IS_UP_BULK:
+            print get_up({x: "" for x in job.IPs}.keys())
+
     def process(self):
         processingID = -1
         while True:
@@ -222,14 +235,7 @@ class RestAPIServer:
                     job = self.app.fvars['job_queue'][processingID]
                     print "Processing %s..." % jsonpickle.encode(job)
                     # DO SOMETHING
-                    if job.type == CONNECT_SCAN:
-                        connect_scan(job.IPs, job.ports)
-                    elif job.type == TCP_FIN_SCAN:
-                        tcpFINScan({x:"" for x in job.IPs}.keys(), job.ports)
-                    elif job.type == TCP_SYN_SCAN:
-                        tcpSYNScan({x:"" for x in job.IPs}.keys(), job.ports)
-                    elif job.type == IS_UP or job.type == IS_UP_BULK:
-                        print get_up({x:"" for x in job.IPs}.keys())
+                    self.doJob(job)
                     # DONE SOMETHING
                     self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
                 processingID += 1
@@ -277,6 +283,7 @@ class RestAPIServer:
             os._exit(0)
 
         return True
+    
 #-----------------------------------------------------------------------
 # RUN PROGRAM - DO NOT CHANGE
 #-----------------------------------------------------------------------
