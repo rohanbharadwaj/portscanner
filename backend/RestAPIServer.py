@@ -35,6 +35,7 @@ def get_up(ips):
     icmp = IP(dst=ips)/ICMP()
     resp, unresp = sr(icmp, timeout=300)
     catched = []
+
     oldstdout = sys.stdout
     sys.stdout = open(os.devnull, 'w')
     resp.summary( lambda(s,r): catcher(r.sprintf("%IP.src%"), catched) )
@@ -228,7 +229,7 @@ class RestAPIServer:
                     elif job.type == TCP_SYN_SCAN:
                         tcpSYNScan({x:"" for x in job.IPs}.keys(), job.ports)
                     elif job.type == IS_UP or job.type == IS_UP_BULK:
-                        print get_up({x:"" for x in job.IPs}.keys(), job.ports)
+                        print get_up({x:"" for x in job.IPs}.keys())
                     # DONE SOMETHING
                     self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
                 processingID += 1
@@ -297,20 +298,16 @@ if __name__ == "__main__":
     if run_api_test: currentServer.test_server(False)
 
     # EXAMPLE OF SENDING REQ RES OBJECTS
-    """
     if run_basic_test:
-        sendAndReceiveObjects(Req("IP_BULK", ["10.10.2.31", "10.10.2.29"]))
-        sendAndReceiveObjects(Req("IP_BULK", ["10.9.2.31"]))
-        sendAndReceiveObjects(Req("IP_BULK", ["10.7.7.31", "10.7.7.29"]))
-    """
+        sendAndReceiveObjects(Req(IS_UP_BULK, ["172.24.22.114"]))
+        sendAndReceiveObjects(Req(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
+        sendAndReceiveObjects(Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
+        sendAndReceiveObjects(Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
+        sendAndReceiveObjects(Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
     # END OF EXAMPLE
-    sendAndReceiveObjects(Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
-    #sendAndReceiveObjects(Req("TCP_SYN_SCAN", ["172.24.22.114"]))
-    sendAndReceiveObjects(Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
-    sendAndReceiveObjects(Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
+
     while server_alive_for != 0:
         server_alive_for -= 1
         sleep(1)
-
     print 'Server shutting down...'
     os._exit(0)
