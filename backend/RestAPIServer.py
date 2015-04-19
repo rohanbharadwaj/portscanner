@@ -42,6 +42,78 @@ def get_up(ips):
     sys.stdout = oldstdout
     return catched
 
+import socket, errno, os, time, select
+from time import time
+
+def connect_scan(ips, ports):
+    banner = []
+    for ip in ips:
+        sock = []
+
+        """ Prepare all sockets for select """
+        for port in ports:
+            tmp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tmp_sock.setblocking(0)
+            tmp_sock.connect_ex((ip, port))
+            sock.append(tmp_sock)
+
+        cur_time =  time()
+        timeout = 10
+        fin_time = cur_time + timeout
+        open_socks = []
+
+        while ((fin_time - cur_time) > 0) and len(sock):
+            ready_to_read, ready_to_write, in_error = select.select([], [sock], [], timeout)
+            cur_time =  time()
+            for elem in ready_to_write:
+                sock.remove(elem) #Remove from the select descriptor list
+                err_code = elem.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+                #If in error, the port is closed, cleanup our socket
+                if err_code:
+                    print(elem.getpeername(): errno.errorcode[err_code)
+                    elem.close()
+                # The connection is established, add to open_socks
+                else
+                    open_socks.append(elem)
+
+        #Close any sockets with no response
+        for elem in sock:
+            elem.close()
+
+        #Send something to grab the banner
+        for elem in open_socks:
+            elem.send(b'hi')
+        cur_time =  time()
+        timeout = 10
+        fin_time = cur_time + timeout
+
+        #Wait on Select for replies
+        while ((fin_time - cur_time) > 0) and len(open_socks):
+            ready_to_read, ready_to_write, in_error = select.select([open_socks], [], [], timeout)
+            cur_time =  time()
+            for elem in ready_to_read:
+                open_socks.remove(elem) #Remove from the select descriptor list
+                remote = elem.getpeername()
+                err_code = elem.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+
+                #If in error, the port is closed, cleanup our socket
+                if err_code:
+                    print(remote : errno.errorcode[err_code)
+                    elem.close()
+                    banner.append((remote, "No Banner"))
+                # There is something to read
+                else
+                    banner.append((remote, elem.recv[128]))
+                    elem.close()
+
+            #Close any sockets with no response
+            for elem in open_socks:
+                remote = elem.getpeername()
+                banner.append((remote, "No Banner"))
+                elem.close()
+
+    return banner
+
 def doSomething(ips):
     conf.verb = 0 # Disable verbose in sr(), sr1() methods
     start_time = time.time()
