@@ -2,16 +2,14 @@ __author__ = 'rami'
 
 from datetime import datetime
 from time import sleep
+import errno
 from collections import OrderedDict
-import os
-import sys
 import threading
 import jsonpickle
 import requests
 import web
 from config import *
 from ReqResObjects import *
-import socket, errno, select
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR) # Disable the annoying No Route found warning !
@@ -223,13 +221,13 @@ class RestAPIServer:
                     job = self.app.fvars['job_queue'][processingID]
                     print "Processing %s..." % jsonpickle.encode(job)
                     # DO SOMETHING
-                    if job.type == "CONNECT_SCAN":
+                    if job.type == CONNECT_SCAN:
                         connect_scan(job.IPs, job.ports)
-                    elif job.type == "TCP_FIN_SCAN_PORT":
+                    elif job.type == TCP_FIN_SCAN:
                         tcpFINScan({x:"" for x in job.IPs}.keys(), job.ports)
-                    elif job.type == "TCP_SYN_SCAN_PORT":
+                    elif job.type == TCP_SYN_SCAN:
                         tcpSYNScan({x:"" for x in job.IPs}.keys(), job.ports)
-                    elif job.type == "IS_UP" or job.type == "IS_UP_BULK":
+                    elif job.type == IS_UP or job.type == IS_UP_BULK:
                         print get_up({x:"" for x in job.IPs}.keys(), job.ports)
                     # DONE SOMETHING
                     self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
@@ -306,10 +304,10 @@ if __name__ == "__main__":
         sendAndReceiveObjects(Req("IP_BULK", ["10.7.7.31", "10.7.7.29"]))
     """
     # END OF EXAMPLE
-    #sendAndReceiveObjects(Req("TCP_SYN_SCAN_PORT", ["172.24.22.114", "130.245.124.254"]))
-    #sendAndReceiveObjects(Req("TCP_SYN_SCAN_PORT", ["172.24.22.114"]))
-    #sendAndReceiveObjects(Req("CONNECT_SCAN", ["172.24.22.114"], [21, 22]))
-    sendAndReceiveObjects(Req("TCP_FIN_SCAN_PORT", ["172.24.22.114"], [21, 2000]))
+    sendAndReceiveObjects(Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
+    #sendAndReceiveObjects(Req("TCP_SYN_SCAN", ["172.24.22.114"]))
+    sendAndReceiveObjects(Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
+    sendAndReceiveObjects(Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
     while server_alive_for != 0:
         server_alive_for -= 1
         sleep(1)
