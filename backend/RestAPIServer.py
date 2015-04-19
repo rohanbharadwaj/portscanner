@@ -11,6 +11,7 @@ import requests
 import web
 from config import *
 from ReqResObjects import *
+import socket, errno, select
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR) # Disable the annoying No Route found warning !
@@ -42,9 +43,6 @@ def get_up(ips):
     sys.stdout = oldstdout
     return catched
 
-import socket, errno, os, time, select
-from time import time
-
 def connect_scan(ips, ports):
     banner = []
     for ip in ips:
@@ -57,40 +55,45 @@ def connect_scan(ips, ports):
             tmp_sock.connect_ex((ip, port))
             sock.append(tmp_sock)
 
-        cur_time =  time()
+        cur_time =  time.time()
         timeout = 10
         fin_time = cur_time + timeout
         open_socks = []
 
         while ((fin_time - cur_time) > 0) and len(sock):
-            ready_to_read, ready_to_write, in_error = select.select([], [sock], [], timeout)
-            cur_time =  time()
+            ready_to_read, ready_to_write, in_error = select([], sock, [], fin_time - cur_time)
+            cur_time =  time.time()
             for elem in ready_to_write:
                 sock.remove(elem) #Remove from the select descriptor list
                 err_code = elem.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
                 #If in error, the port is closed, cleanup our socket
                 if err_code:
-                    print(elem.getpeername(): errno.errorcode[err_code)
+                    print(elem, errno.errorcode[err_code])
                     elem.close()
                 # The connection is established, add to open_socks
-                else
+                else:
+                    elem.setblocking(1)
                     open_socks.append(elem)
 
         #Close any sockets with no response
         for elem in sock:
+            print('Unresponsive sock: ', elem.getpeername())
             elem.close()
 
         #Send something to grab the banner
         for elem in open_socks:
-            elem.send(b'hi')
-        cur_time =  time()
+            print('Open sock: ', elem.getpeername())
+            elem.send('hi')
+
+        cur_time =  time.time()
         timeout = 10
         fin_time = cur_time + timeout
 
         #Wait on Select for replies
         while ((fin_time - cur_time) > 0) and len(open_socks):
-            ready_to_read, ready_to_write, in_error = select.select([open_socks], [], [], timeout)
-            cur_time =  time()
+            print 'Opens socks are: ', open_socks
+            ready_to_read, ready_to_write, in_error = select(open_socks, [], [], fin_time - cur_time)
+            cur_time =  time.time()
             for elem in ready_to_read:
                 open_socks.remove(elem) #Remove from the select descriptor list
                 remote = elem.getpeername()
@@ -98,27 +101,55 @@ def connect_scan(ips, ports):
 
                 #If in error, the port is closed, cleanup our socket
                 if err_code:
-                    print(remote : errno.errorcode[err_code)
+                    print(remote,  errno.errorcode[err_code])
                     elem.close()
                     banner.append((remote, "No Banner"))
                 # There is something to read
-                else
-                    banner.append((remote, elem.recv[128]))
+                else:
+                    banner.append((remote, elem.recv(128)))
                     elem.close()
 
-            #Close any sockets with no response
-            for elem in open_socks:
-                remote = elem.getpeername()
-                banner.append((remote, "No Banner"))
-                elem.close()
+        #Close any sockets with no response
+        for elem in open_socks:
+            remote = elem.getpeername()
+            banner.append((remote, "No Banner"))
+            elem.close()
 
+    print 'Banners: ', banner
     return banner
 
-def doSomething(ips):
+def tcpFINScan(ips, ports):
     conf.verb = 0 # Disable verbose in sr(), sr1() methods
     start_time = time.time()
-    ports = list(range(1, 100))
-    closed = 0
+    upIPs = get_up(ips)
+    if upIPs:
+        print "Host %s is up, start scanning" % upIPs
+        for ip in upIPs:
+            src_port = RandShort() # Getting a random port as source port
+            p = IP(dst=ip)/TCP(sport=src_port, dport=ports, flags='F') # Forging SYN packet
+            resp, unresp = sr(p, timeout=2) # Sending packet
+            active_ports = []
+            inactive_ports = []
+
+            # resp.summary()
+            oldstdout = sys.stdout
+            sys.stdout = open(os.devnull, 'w')
+            resp.summary( prn=lambda(s,r): catcher(TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf("%TCP.sport%"), inactive_ports), lfilter = lambda (s,r): r.sprintf("%TCP.flags%") == "RA" )
+            unresp.summary( prn=lambda(s): catcher(TCP_SERVICES[s.sprintf("%TCP.dport%")] if s.sprintf("%TCP.dport%") in TCP_SERVICES else s.sprintf("%TCP.dport%"), active_ports))
+            sys.stdout = oldstdout
+
+            sr(IP(dst=ip)/TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
+            for pop in active_ports: print "%d open" % pop
+            print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
+
+    print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
+
+    duration = time.time()-start_time
+    print "%s Scan Completed in %fs" % (ips, duration)
+
+def tcpSYNScan(ips, ports):
+    conf.verb = 0 # Disable verbose in sr(), sr1() methods
+    start_time = time.time()
     upIPs = get_up(ips)
     if upIPs:
         print "Host %s is up, start scanning" % upIPs
@@ -134,7 +165,7 @@ def doSomething(ips):
             sys.stdout = open(os.devnull, 'w')
             resp.summary( prn=lambda(s,r): catcher(TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf("%TCP.sport%"), active_ports), lfilter = lambda (s,r): r.sprintf("%TCP.flags%") == "SA" )
             resp.summary( prn=lambda(s,r): catcher(TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf("%TCP.sport%"), inactive_ports), lfilter = lambda (s,r): r.sprintf("%TCP.flags%") == "RA" )
-            unresp.summary( prn=lambda(s): catcher(TCP_SERVICES[s.sprintf("%TCP.sport%")] if s.sprintf("%TCP.sport%") in TCP_SERVICES else s.sprintf("%TCP.sport%"), inactive_ports))
+            unresp.summary( prn=lambda(s): catcher(TCP_SERVICES[s.sprintf("%TCP.dport%")] if s.sprintf("%TCP.dport%") in TCP_SERVICES else s.sprintf("%TCP.dport%"), inactive_ports))
             sys.stdout = oldstdout
 
             sr(IP(dst=ip)/TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
@@ -192,7 +223,14 @@ class RestAPIServer:
                     job = self.app.fvars['job_queue'][processingID]
                     print "Processing %s..." % jsonpickle.encode(job)
                     # DO SOMETHING
-                    doSomething({x:"" for x in job.IPs}.keys())
+                    if job.type == "CONNECT_SCAN":
+                        connect_scan(job.IPs, job.ports)
+                    elif job.type == "TCP_FIN_SCAN_PORT":
+                        tcpFINScan({x:"" for x in job.IPs}.keys(), job.ports)
+                    elif job.type == "TCP_SYN_SCAN_PORT":
+                        tcpSYNScan({x:"" for x in job.IPs}.keys(), job.ports)
+                    elif job.type == "IS_UP" or job.type == "IS_UP_BULK":
+                        print get_up({x:"" for x in job.IPs}.keys(), job.ports)
                     # DONE SOMETHING
                     self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
                 processingID += 1
@@ -215,26 +253,26 @@ class RestAPIServer:
         print "Testing server APIs..."
         print "New request..."
         data = jsonpickle.encode("Test ID = %s" % datetime.now())
-        r = requests.post(URL, data=data)
-        created = r.json()['created']
-        print "Job ID: " + str(created)
+        response = requests.post(URL, data=data)
+        work_id = response.json()['work_id']
+        print "Job ID: " + str(work_id)
 
         print "Get request..."
-        r = requests.get(SERVICE_ + str(created))
-        print "Response: " + str(r.json())
+        response = requests.get(SERVICE_ + str(work_id))
+        print "Response: " + str(response.json())
 
         print "Change request..."
         data = jsonpickle.encode("Test ID = %s [UPDATED]" % datetime.now())
-        r = requests.put(SERVICE_ + str(created), data=data)
-        print "Response: " + str(r.json())
+        response = requests.put(SERVICE_ + str(work_id), data=data)
+        print "Response: " + str(response.json())
 
         print "Get request again..."
-        r = requests.get(SERVICE_ + str(created))
-        print "Response: " + str(r.json())
+        response = requests.get(SERVICE_ + str(work_id))
+        print "Response: " + str(response.json())
 
         print "Removing the request..."
-        r = requests.delete(SERVICE_ + str(created))
-        print "Response: " + str(r.json())
+        response = requests.delete(SERVICE_ + str(work_id))
+        print "Response: " + str(response.json())
 
         if test_die:
             os._exit(0)
@@ -268,7 +306,10 @@ if __name__ == "__main__":
         sendAndReceiveObjects(Req("IP_BULK", ["10.7.7.31", "10.7.7.29"]))
     """
     # END OF EXAMPLE
-    sendAndReceiveObjects(Req("TCP_SYN_SCAN_PORT", ["172.24.22.114", "130.245.124.254"]))
+    #sendAndReceiveObjects(Req("TCP_SYN_SCAN_PORT", ["172.24.22.114", "130.245.124.254"]))
+    #sendAndReceiveObjects(Req("TCP_SYN_SCAN_PORT", ["172.24.22.114"]))
+    #sendAndReceiveObjects(Req("CONNECT_SCAN", ["172.24.22.114"], [21, 22]))
+    sendAndReceiveObjects(Req("TCP_FIN_SCAN_PORT", ["172.24.22.114"], [21, 2000]))
     while server_alive_for != 0:
         server_alive_for -= 1
         sleep(1)
