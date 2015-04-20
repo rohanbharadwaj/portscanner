@@ -32,7 +32,7 @@ def catcher(i, o):
 
 def get_up(ips):
     """ Tests if host is up """
-    icmp = IP(dst=ips)/ICMP()
+    icmp = IP(dst=ips)/ICMP(seq=RandShort())
     resp, unresp = sr(icmp, timeout=30)
     catched = []
 
@@ -120,7 +120,8 @@ def connect_scan(ips, ports):
 def tcpFINScan(ips, ports):
     conf.verb = 0 # Disable verbose in sr(), sr1() methods
     start_time = time.time()
-    upIPs = get_up(ips)
+    #upIPs = get_up(ips)
+    upIPs = ips
     if upIPs:
         print "Host %s is up, start scanning" % upIPs
         for ip in upIPs:
@@ -149,6 +150,7 @@ def tcpFINScan(ips, ports):
 def tcpSYNScan(ips, ports):
     conf.verb = 0 # Disable verbose in sr(), sr1() methods
     start_time = time.time()
+    #upIPs = get_up(ips)
     upIPs = get_up(ips)
     if upIPs:
         print "Host %s is up, start scanning" % upIPs
@@ -289,14 +291,17 @@ class RestAPIServer:
 #-----------------------------------------------------------------------
 
 def sendAndReceiveObjects(url, req):
-    r = requests.post(url, data=jsonpickle.encode(req))
-    created = r.json()['created']
-    print "Message ID: " + str(created), r.json()
-    sleep(3)
-    r = requests.get(url + str(created))
-    print "Service returned: " + str(r.json())
-    res = jsonpickle.decode(r.text)
-    return res
+    try:
+        r = requests.post(url, data=jsonpickle.encode(req))
+        created = r.json()['created']
+        print "Message ID: " + str(created), r.json()
+        sleep(3)
+        r = requests.get(url + str(created))
+        print "Service returned: " + str(r.json())
+        res = jsonpickle.decode(r.text)
+        return res
+    except Exception as e:
+        pass
 
 if __name__ == "__main__":
     currentServer = RestAPIServer()
@@ -313,6 +318,9 @@ if __name__ == "__main__":
         sendAndReceiveObjects(URL, Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
     # END OF EXAMPLE
 
+    #sendAndReceiveObjects(URL, Req(IS_UP, ["172.24.22.114"]))
+    sendAndReceiveObjects(URL, Req(IS_UP, ["130.245.124.254"]))
+    #sendAndReceiveObjects(URL, Req(TCP_SYN_SCAN, ["130.245.124.254"]))
     #sendAndReceiveObjects(SERVER_URL, Register("172.24.31.198", 8080))
 
     while server_alive_for != 0:
