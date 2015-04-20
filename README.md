@@ -1,1 +1,3 @@
-Front end [demo](http://rohanbharadwaj.github.io/portscanner/clean_code/)
+###Requirements
+- Flask
+- Python 2.7
