@@ -47,9 +47,7 @@ def assignWork(jobid, reqid, scanIp, stPort, enPort, scanType):
         if not assignedList[key]:
             assignedList[workerId] = jobid
             #response = requests.get(url, data=job)
-            self, type, IPs, startPort, endPort, jobId=None, reqId=None
-            sendAndReceiveObjects(prefixUrl+workerId, Job(scanType ,scanIp, stPort, enPort, jobid, reqid)
-            print response;
+            sendAndReceiveObjects(prefixUrl+workerId, Job(scanType ,scanIp, stPort, enPort, jobid, reqid))
 
 def createJob(jobid, reqid, scanIp, startPort, endPort, scanType):
     data = {}
@@ -115,6 +113,7 @@ def receiveJobReport(report):
 
 def registerWorker(ip,port):
     assignedList[ip+":"+str(port)] = [];
+    print "new worker registered" + ip + ":" + port;
 
 class MyRestServer(RestAPIServer):
     def doJob(self, job):
@@ -135,8 +134,8 @@ def sendAndReceiveObjects(url, req):
 if __name__ == '__main__':
     srvr = MyRestServer()
     srvr.run_server()
-    sendAndReceiveObjects(URL, Register("27.0.0.0.1",8080))
+    #sendAndReceiveObjects(URL, Register("27.0.0.0.1",8080))
 
-    requestReceiver("130.245.124.254", 1, 5500, FIN_SCAN);
+    #requestReceiver("130.245.124.254", 1, 5500, FIN_SCAN);
     #registerWorker("27.0.0.0.1",8080)
     #print pendingJobCnt;
