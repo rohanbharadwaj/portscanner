@@ -283,19 +283,19 @@ class RestAPIServer:
             os._exit(0)
 
         return True
-    
+
 #-----------------------------------------------------------------------
 # RUN PROGRAM - DO NOT CHANGE
 #-----------------------------------------------------------------------
 
-def sendAndReceiveObjects(req):
-    r = requests.post(URL, data=jsonpickle.encode(req))
+def sendAndReceiveObjects(url, req):
+    r = requests.post(url, data=jsonpickle.encode(req))
     created = r.json()['created']
     print "Message ID: " + str(created), r.json()
-    r = requests.get(SERVICE_ + str(created))
+    sleep(3)
+    r = requests.get(url + str(created))
     print "Service returned: " + str(r.json())
     res = jsonpickle.decode(r.text)
-    sleep(3)
     return res
 
 if __name__ == "__main__":
@@ -306,15 +306,14 @@ if __name__ == "__main__":
 
     # EXAMPLE OF SENDING REQ RES OBJECTS
     if run_basic_test:
-        sendAndReceiveObjects(Req(IS_UP_BULK, ["172.24.22.114"]))
-        sendAndReceiveObjects(Req(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
-        sendAndReceiveObjects(Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
-        sendAndReceiveObjects(Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
-        sendAndReceiveObjects(Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
+        sendAndReceiveObjects(URL, Req(IS_UP_BULK, ["172.24.22.114"]))
+        sendAndReceiveObjects(URL, Req(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
+        sendAndReceiveObjects(URL, Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
+        sendAndReceiveObjects(URL, Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
+        sendAndReceiveObjects(URL, Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
     # END OF EXAMPLE
 
-    sendAndReceiveObjects(Req(IS_UP_BULK, ["172.24.22.114"]))
-    sendAndReceiveObjects(Req(IS_UP, ["192.168.1.1"]))
+    #sendAndReceiveObjects(SERVER_URL, Register("172.24.31.198", 8080))
 
     while server_alive_for != 0:
         server_alive_for -= 1
