@@ -306,7 +306,7 @@ if __name__ == "__main__":
 
     # EXAMPLE OF SENDING REQ RES OBJECTS
     if run_basic_test:
-        sendAndReceiveObjects(URL, Req(IS_UP_BULK, ["172.24.22.114"]))
+        sendAndReceiveObjects(URL, Req(IS_UP, ["172.24.22.114"]))
         sendAndReceiveObjects(URL, Req(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
         sendAndReceiveObjects(URL, Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
         sendAndReceiveObjects(URL, Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
