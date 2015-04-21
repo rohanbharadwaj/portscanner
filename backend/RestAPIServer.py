@@ -51,8 +51,10 @@ def get_up(ips):
 
 
 def connect_scan(ips, ports):
-    banner = []
+    ret = []
+
     for ip in ips:
+        port_banners = []
         sock = []
 
         """ Prepare all sockets for select """
@@ -110,20 +112,22 @@ def connect_scan(ips, ports):
                 if err_code:
                     print(remote, errno.errorcode[err_code])
                     elem.close()
-                    banner.append((remote, "No Banner"))
+                    port_banners.append([remote[1], "No Banner"])
                 # There is something to read
                 else:
-                    banner.append((remote, elem.recv(128)))
+                    port_banners.append([remote[1], elem.recv(128)])
                     elem.close()
 
         #Close any sockets with no response
         for elem in open_socks:
             remote = elem.getpeername()
-            banner.append((remote, "No Banner"))
+            port_banners.append([remote[1], "No Banner"])
             elem.close()
 
-    print 'Banners: ', banner
-    return banner
+    ret.append([ip, port_banners])
+
+    print 'IP-Banners: ', ret
+    return ret
 
 
 def tcpFINScan(ips, ports):
@@ -131,6 +135,7 @@ def tcpFINScan(ips, ports):
     start_time = time.time()
     #upIPs = get_up(ips)
     upIPs = ips
+    ret = []
     if upIPs:
         print "Host %s is up, start scanning" % upIPs
         for ip in upIPs:
@@ -155,17 +160,20 @@ def tcpFINScan(ips, ports):
             for pop in active_ports: print "%d open" % pop
             print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
+            ret.append([ip, active_ports])
+
     print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
 
     duration = time.time() - start_time
     print "%s Scan Completed in %fs" % (ips, duration)
-
+    return ret
 
 def tcpSYNScan(ips, ports):
     conf.verb = 0  # Disable verbose in sr(), sr1() methods
     start_time = time.time()
     #upIPs = get_up(ips)
     upIPs = get_up(ips)
+    ret = []
     if upIPs:
         print "Host %s is up, start scanning" % upIPs
         for ip in upIPs:
@@ -193,10 +201,13 @@ def tcpSYNScan(ips, ports):
             for pop in active_ports: print "%d open" % pop
             print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
+            ret.append([ip, active_ports])
+
     print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
 
     duration = time.time() - start_time
     print "%s Scan Completed in %fs" % (ips, duration)
+    return ret
 
 
 #----------------------END OF SCANNER LOGIC-----------------------------------------------
@@ -255,18 +266,23 @@ class RestAPIServer:
             res.workerIP_Port = res.workerIP_Port.format(socket.gethostbyname(socket.getfqdn()), SERVICE_PORT)
 
             if job.scanType == CONNECT_SCAN:
-                res.port_banner = connect_scan(job.IPs, job.ports)
+                res.report = connect_scan(job.IPs, job.ports)
             elif job.scanType == TCP_FIN_SCAN:
-                tcpFINScan({x: "" for x in job.IPs}.keys(), job.ports)
+                res.report = tcpFINScan({x: "" for x in job.IPs}.keys(), job.ports)
             elif job.scanType == TCP_SYN_SCAN:
-                tcpSYNScan({x: "" for x in job.IPs}.keys(), job.ports)
+                res.report = tcpSYNScan({x: "" for x in job.IPs}.keys(), job.ports)
             elif job.scanType == IS_UP or job.scanType == IS_UP_BULK:
-                print get_up({x: "" for x in job.IPs}.keys())
+                res.report = get_up({x: "" for x in job.IPs}.keys())
+            else:
+                print 'Undefined scan-type in job. Ignoring it.'
+                return
 
             #sendAndReceiveObjects(SERVER_URL, res)
 
         except Exception as e:
             pass
+
+        print 'REQ[{0}] processed with RESPONSE[{1}]'.format(jsonpickle.encode(job), jsonpickle.encode(res))
 
 
     def process(self, remove_job_after_processing=True):
