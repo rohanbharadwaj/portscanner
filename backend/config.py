@@ -1,10 +1,11 @@
-# RESTAPI SERVER SPECIFIC CONSTANTS
-run_api_test = False
-URL = 'http://localhost:8080'
-urls = ('/(.*)', 'RestAPIServer')
-server_alive_for = -120  # Use negative value for infinite life
+# REST-API SERVER SPECIFIC CONSTANTS
+RUN_API_TEST = False
+SERVICE_PORT = '8080'
+URL = 'http://localhost:' + SERVICE_PORT
+URL_PATTERN_SERVICED = ('/(.*)', 'RestAPIServer')
+SERVER_ALIVE_FOR_SECONDS = -120  # Use negative value for infinite life
 
 # SCANNER SPECIFIC CONSTANTS
-run_basic_test = True
+RUN_BASIC_TEST = True
 ICMP_REACHABLE_TYPE = ["echo-reply"]
 SERVER_URL = 'http://172.24.22.113:8080'

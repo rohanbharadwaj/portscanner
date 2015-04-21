@@ -247,21 +247,23 @@ class RestAPIServer:
         global sendAndReceiveObjects
 
         if type(job) != Job:
+            print 'Invalid scan-job passed. Ignoring it.'
             return
 
         try:
             res = Res(job)
+            res.workerIP_Port = res.workerIP_Port.format(socket.gethostbyname(socket.getfqdn()), SERVICE_PORT)
 
-            if job.type == CONNECT_SCAN:
+            if job.scanType == CONNECT_SCAN:
                 res.port_banner = connect_scan(job.IPs, job.ports)
-            elif job.type == TCP_FIN_SCAN:
+            elif job.scanType == TCP_FIN_SCAN:
                 tcpFINScan({x: "" for x in job.IPs}.keys(), job.ports)
-            elif job.type == TCP_SYN_SCAN:
+            elif job.scanType == TCP_SYN_SCAN:
                 tcpSYNScan({x: "" for x in job.IPs}.keys(), job.ports)
-            elif job.type == IS_UP or job.type == IS_UP_BULK:
+            elif job.scanType == IS_UP or job.scanType == IS_UP_BULK:
                 print get_up({x: "" for x in job.IPs}.keys())
 
-            sendAndReceiveObjects(SERVER_URL, res)
+            #sendAndReceiveObjects(SERVER_URL, res)
 
         except Exception as e:
             pass
@@ -288,8 +290,8 @@ class RestAPIServer:
                 sleep(1)
 
     def run_server(self):
-        global urls
-        self.app = web.application(urls, globals())
+        global URL_PATTERN_SERVICED
+        self.app = web.application(URL_PATTERN_SERVICED, globals())
         webthread = threading.Thread(target=self.app.run)
         processthread = threading.Thread(target=self.process)
         webthread.start()
@@ -354,24 +356,24 @@ if __name__ == "__main__":
     currentServer = RestAPIServer()
     currentServer.run_server()
 
-    if run_api_test: currentServer.test_server(False)
+    if RUN_API_TEST: currentServer.test_server(False)
 
     # EXAMPLE OF SENDING REQ RES OBJECTS
-    if run_basic_test:
-        sendAndReceiveObjects(URL, Req(IS_UP, ["172.24.22.114"]))
-        sendAndReceiveObjects(URL, Req(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
-        sendAndReceiveObjects(URL, Req(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
-        sendAndReceiveObjects(URL, Req(TCP_FIN_SCAN, ["172.24.22.114"], [21, 2000]))
-        sendAndReceiveObjects(URL, Req(CONNECT_SCAN, ["172.24.22.114"], [21, 22]))
+    if RUN_BASIC_TEST:
+        sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
+        sendAndReceiveObjects(URL, Job(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
+        sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
+        sendAndReceiveObjects(URL, Job(TCP_FIN_SCAN, ["172.24.22.114"], 21, 2000))
+        sendAndReceiveObjects(URL, Job(CONNECT_SCAN, ["172.24.22.114"], 21, 22))
     # END OF EXAMPLE
 
-    #sendAndReceiveObjects(URL, Req(IS_UP, ["172.24.22.114"]))
-    #sendAndReceiveObjects(URL, Req(IS_UP, ["130.245.124.254"]))
-    #sendAndReceiveObjects(URL, Req(TCP_SYN_SCAN, ["130.245.124.254"]))
+    #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
+    #sendAndReceiveObjects(URL, Job(IS_UP, ["130.245.124.254"]))
+    #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
     #sendAndReceiveObjects(SERVER_URL, Register("172.24.31.198", 8080))
 
-    while server_alive_for != 0:
-        server_alive_for -= 1
+    while SERVER_ALIVE_FOR_SECONDS != 0:
+        SERVER_ALIVE_FOR_SECONDS -= 1
         sleep(1)
     print 'Server shutting down...'
     os._exit(0)

@@ -8,16 +8,16 @@ TCP_FIN_SCAN = "TCP_FIN_SCAN"
 
 
 class Req(object):
-    def __init__(self, type, IPs, ports=list(range(1, 100))):
-        self.type = type
+    def __init__(self, scanType, IPs, ports=list(range(1, 100))):
+        self.scanType = scanType
         self.IPs = IPs
         self.ports = ports
 
 
 class Job(Req):
-    def __init__(self, scanType, IPs, startPort=1, endPort=1, jobId=None, reqId=None):
+    def __init__(self, scanType, IPs, startPort=1, endPort=100, jobId=None, reqId=None):
         # super(Job, self).__init__(scanType, IPs, ports)
-        self.type = type
+        self.scanType = scanType
         self.IPs = IPs
         self.ports = list(range(startPort, endPort + 1))
         self.jobId = jobId
@@ -32,7 +32,8 @@ class Register(object):
 
 class Res(object):
     def __init__(self, job):
-        self.type = job.type
+        self.workerIP_Port = '{0}:{1}'
+        self.scanType = job.scanType
         self.IPs = job.IPs
         self.ports = job.ports
         self.jobId = job.jobId
