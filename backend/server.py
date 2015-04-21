@@ -12,6 +12,7 @@ from ReqResObjects import *
 
 
 LIMIT = 1000
+IP_LIMIT = 100
 pendingList = {}
 assignedList = {}
 
@@ -24,7 +25,7 @@ port = 27017;
 
 # Insert a new job record in mongo database
 def insertRecord(scanType, json_data):
-    print "sendAndReceiveObjects"
+    print "insertRecord"
     def __init__(self, ip, port):
         client = MongoClient(ip, port);
         db = client.test_database
@@ -98,54 +99,74 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
     global pendingJobCnt
 
     if(scanType is TCP_FIN_SCAN or scanType is TCP_SYN_SCAN or scanType is CONNECT_SCAN):
-        stPort = startPort
-        enPort = 0
-        print scanType
-        d = range/LIMIT
-        for x in xrange(d+1):
-            stPort = stPort
-            if (x == d):
-                enPort = endPort
-            else:
-                enPort = stPort + LIMIT
-            jobid = str(uuid.uuid1());
-            jobObj = Job(scanType ,[scanIp], stPort, enPort, jobid, reqid)
-            #job = createJob(jobid, reqid, scanIp, stPort, enPort, scanType)
-            #if(job):
-            #print "job: "+job;
-            pendingList[reqid].append(jobObj);
-            pendingJobCnt += 1
-            stPort = enPort+1
 
-            assignWork(jobObj);
-        print "Work Pending for reqid: " + reqid +"::::"+ str(pendingList[reqid]);
-    
+        net = ipcalc.Network(scanIp)
+        #netsize = net.size()-2
+
+        if(range > LIMIT):
+            for ip in net:
+                stPort = startPort
+                enPort = 0
+                print scanType
+                d = range/LIMIT
+                for x in xrange(d+1):
+                    stPort = stPort
+                    if (x == d):
+                        enPort = endPort
+                    else:
+                        enPort = stPort + LIMIT
+                    jobid = str(uuid.uuid1());
+                    jobObj = Job(scanType ,[scanIp], stPort, enPort, jobid, reqid)
+                    print str(jobObj)
+                    pendingList[reqid].append(jobObj);
+                    pendingJobCnt += 1
+                    stPort = enPort+1
+                    assignWork(jobObj);
+                #print "Work Pending for reqid: " + reqid +"::::"+ str(pendingList[reqid]);
+        else:
+            IPs = []
+            stPort = startPort
+            enPort = endPort
+            chkCnt = 1
+            cnt = 1
+            for ip in net:
+                print str(ip), len(IPs), net.size()
+                if((len(IPs)+1)*range<LIMIT and cnt<net.size()-2):
+                    IPs.append(str(ip))
+                else:
+                    jobid = str(uuid.uuid1())
+                    jobObj = Job(scanType ,IPs , stPort, enPort, jobid, reqid)
+                    print str(jobObj.IPs),str(jobObj.ports)
+                    pendingList[reqid].append(jobObj)
+                    pendingJobCnt += 1
+                    assignWork(jobObj)
+                    IPs = []
+                    IPs.append(str(ip))
+                cnt +=1
+
     elif(scanType is IS_UP_BULK):
         print "IS_UP_BULK"
         net = ipcalc.Network(scanIp)
-        d = (net.size()-2) / 100
+        netsize = net.size()-2
+        d = (netsize) / IP_LIMIT
         print "size" + str(net.size()) + str(d)
         chkCnt = 1
         cnt = 1
-        scanIp = []
+        IPs = []
         for ip in net:
             print str(ip), str(cnt)
-            scanIp.append(str(ip))
-            if((100*chkCnt==cnt or net.size()==cnt)):
+            IPs.append(str(ip))
+            if((IP_LIMIT*chkCnt==cnt or netsize==cnt)):
                 chkCnt +=1
                 jobid = str(uuid.uuid1())
-                jobObj = Job(scanType ,[scanIp], 0, 100, jobid, reqid)
+                jobObj = Job(scanType ,IPs , 0, 100, jobid, reqid)
                 print str(jobObj)
-                pendingList[reqid].append(jobObj);
+                pendingList[reqid].append(jobObj)
                 pendingJobCnt += 1
-                assignWork(jobObj);
-                scanIp = []
+                assignWork(jobObj)
+                IPs = []
             cnt +=1
-        #startIp = net.host_first();
-        #for x in xrange(d + 1):
-        #    startIp = startIp
 
-            #if(x==d)
 
 def processReport(reqId, jobId, scanType, report):
     print "processReport: " + report
@@ -203,7 +224,8 @@ if __name__ == '__main__':
     #sleep(3)
 
     #requestReceiver("130.245.124.254", 1, 1200, TCP_FIN_SCAN);
-    requestReceiver("172.24.22.0/24", 1, 1200, IS_UP_BULK);
+    #requestReceiver("172.24.22.0/24", 1, 1200, TCP_FIN_SCAN);
+    requestReceiver("172.24.22.0/24", 1, 200, TCP_FIN_SCAN);
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
