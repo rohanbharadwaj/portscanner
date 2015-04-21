@@ -22,6 +22,17 @@ class Job(Req):
         self.ports = list(range(startPort, endPort + 1))
         self.jobId = jobId
         self.reqId = reqId
+    def __eq__(self, other):
+        if(other==None):
+            return False
+        print self.jobId+":::::::"+ other.jobId, self.jobId == other.jobId
+        return self.jobId == other.jobId
+
+    def __cmp__(self, other):
+        if(other==None):
+            return False
+        print self.jobId+"%%%%:::"+ other.jobId, cmp(self.jobId,other.jobId)
+        return cmp(self.jobId,other.jobId)
 
 
 class Register(object):
