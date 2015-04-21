@@ -131,18 +131,26 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
             cnt = 1
             for ip in net:
                 print str(ip), len(IPs), net.size()
-                if((len(IPs)+1)*range<LIMIT and cnt<net.size()-2):
-                    IPs.append(str(ip))
+                if(net.size()>1):
+                    if((len(IPs)+1)*range<LIMIT and cnt<net.size()-2):
+                        IPs.append(str(ip))
+                    else:
+                        jobid = str(uuid.uuid1())
+                        jobObj = Job(scanType ,IPs , stPort, enPort, jobid, reqid)
+                        print str(jobObj.IPs),str(jobObj.ports)
+                        pendingList[reqid].append(jobObj)
+                        pendingJobCnt += 1
+                        assignWork(jobObj)
+                        IPs = []
+                        IPs.append(str(ip))
+                    cnt +=1
                 else:
                     jobid = str(uuid.uuid1())
-                    jobObj = Job(scanType ,IPs , stPort, enPort, jobid, reqid)
+                    jobObj = Job(scanType ,[scanIp] , stPort, enPort, jobid, reqid)
                     print str(jobObj.IPs),str(jobObj.ports)
                     pendingList[reqid].append(jobObj)
                     pendingJobCnt += 1
                     assignWork(jobObj)
-                    IPs = []
-                    IPs.append(str(ip))
-                cnt +=1
 
     elif(scanType is IS_UP_BULK):
         print "IS_UP_BULK"
@@ -225,7 +233,7 @@ if __name__ == '__main__':
 
     #requestReceiver("130.245.124.254", 1, 1200, TCP_FIN_SCAN);
     #requestReceiver("172.24.22.0/24", 1, 1200, TCP_FIN_SCAN);
-    requestReceiver("172.24.22.0/24", 1, 200, TCP_FIN_SCAN);
+    requestReceiver("130.245.124.254", 1, 200, TCP_FIN_SCAN);
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
