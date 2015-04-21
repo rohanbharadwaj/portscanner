@@ -31,7 +31,10 @@ class Register(object):
 
 
 class Res(object):
-    def __init__(self, type, IP, port_banner):
-        self.type = type
-        self.IP = IP
-        self.port_banner = port_banner
+    def __init__(self, job):
+        self.type = job.type
+        self.IPs = job.IPs
+        self.ports = job.ports
+        self.jobId = job.jobId
+        self.reqId = job.reqId
+        self.report = None

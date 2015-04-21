@@ -219,7 +219,7 @@ class RestAPIServer:
         global job_queue, new_job_id
         job_queue[new_job_id] = jsonpickle.decode(web.data())
         new_job_id += 1
-        print 'ID is Now %d' % new_job_id, self, job_queue
+        #print 'ID is Now %d' % new_job_id, self, job_queue
         return jsonpickle.encode({'work_id': new_job_id - 1})
 
     def DELETE(self, id):
@@ -243,19 +243,33 @@ class RestAPIServer:
     """
 
     def doJob(self, job):
-        if job.type == CONNECT_SCAN:
-            connect_scan(job.IPs, job.ports)
-        elif job.type == TCP_FIN_SCAN:
-            tcpFINScan({x: "" for x in job.IPs}.keys(), job.ports)
-        elif job.type == TCP_SYN_SCAN:
-            tcpSYNScan({x: "" for x in job.IPs}.keys(), job.ports)
-        elif job.type == IS_UP or job.type == IS_UP_BULK:
-            print get_up({x: "" for x in job.IPs}.keys())
+
+        global sendAndReceiveObjects
+
+        if type(job) != Job:
+            return
+
+        try:
+            res = Res(job)
+
+            if job.type == CONNECT_SCAN:
+                res.port_banner = connect_scan(job.IPs, job.ports)
+            elif job.type == TCP_FIN_SCAN:
+                tcpFINScan({x: "" for x in job.IPs}.keys(), job.ports)
+            elif job.type == TCP_SYN_SCAN:
+                tcpSYNScan({x: "" for x in job.IPs}.keys(), job.ports)
+            elif job.type == IS_UP or job.type == IS_UP_BULK:
+                print get_up({x: "" for x in job.IPs}.keys())
+
+            sendAndReceiveObjects(SERVER_URL, res)
+
+        except Exception as e:
+            pass
+
 
     def process(self, remove_job_after_processing=True):
         processingID = -1
         while True:
-            print 'Current Job ID = %d' % processingID
             if len(self.app.fvars['job_queue']) != 0 and processingID < self.app.fvars['new_job_id']:
                 if processingID in self.app.fvars['job_queue']:
                     job = None
@@ -263,15 +277,15 @@ class RestAPIServer:
                         job = self.app.fvars['job_queue'][processingID]
                     else:
                         job = self.app.fvars['job_queue'].pop(processingID)
-                    print "Processing %s..." % jsonpickle.encode(job)
+                    print "Processing Job-ID[{0}] Job[{1}]...".format(processingID, jsonpickle.encode(job))
                     # DO SOMETHING
                     self.doJob(job)
                     # DONE SOMETHING
                     #self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
                 processingID += 1
             else:
-                print "Nothing to process!"
-                sleep(5)
+                #print "Nothing to process!"
+                sleep(1)
 
     def run_server(self):
         global urls
@@ -319,18 +333,21 @@ class RestAPIServer:
 # RUN PROGRAM - DO NOT CHANGE
 #-----------------------------------------------------------------------
 
-def sendAndReceiveObjects(url, req):
+def sendAndReceiveObjects(url, req, receive = False):
     try:
         r = requests.post(url, data=jsonpickle.encode(req))
         work_id = r.json()['work_id']
-        print "Message ID: " + str(work_id), r.json()
-        sleep(3)
-        r = requests.get(url + str(work_id))
-        print "Service returned: " + str(r.json())
-        res = jsonpickle.decode(r.text)
-        return res
+        #print "Message ID: " + str(work_id), r.json()
+        if receive:
+            sleep(3)
+            r = requests.get(url + str(work_id))
+            #print "Service returned: " + str(r.json())
+            res = jsonpickle.decode(r.text)
+            return res
     except Exception as e:
         pass
+
+    return req
 
 
 if __name__ == "__main__":
