@@ -1,21 +1,14 @@
 import uuid;
 import json;
-import requests;
-import json;
+from time import sleep
+import requests
+
+import jsonpickle
+
 import ipcalc;
 from pymongo import MongoClient;
 from RestAPIServer import RestAPIServer
 from ReqResObjects import *
-
-from datetime import datetime
-from time import sleep
-import errno
-from collections import OrderedDict
-import threading
-import jsonpickle
-import requests
-import web
-from config import *
 
 
 LIMIT = 1000
@@ -96,7 +89,7 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
     print "requestReceiver"
     reqid = str(uuid.uuid1())
     pendingList[reqid] = [];
-    range = endPort-startPort
+    range = endPort - startPort
     global pendingJobCnt
 
     if(scanType is TCP_FIN_SCAN or scanType is TCP_SYN_SCAN or scanType is CONNECT_SCAN):
@@ -107,10 +100,10 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
         d = range/LIMIT
         for x in xrange(d+1):
             stPort = stPort
-            if(x==d):
-                enPort=endPort
+            if (x == d):
+                enPort = endPort
             else:
-                enPort = stPort+LIMIT
+                enPort = stPort + LIMIT
             jobid = str(uuid.uuid1());
             jobObj = Job(scanType ,[scanIp], stPort, enPort, jobid, reqid)
             #job = createJob(jobid, reqid, scanIp, stPort, enPort, scanType)
@@ -126,10 +119,11 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
     elif(scanType is IS_UP_BULK):
         print "IS_UP_BULK"
         net = ipcalc.Network(scanIp)
-        d = range/LIMIT
+        d = range / LIMIT
         startIp = net.host_first();
-        for x in xrange(d+1):
+        for x in xrange(d + 1):
             startIp = startIp
+
             #if(x==d)
 
 def processReport(reqId, jobId, scanType, report):
@@ -172,14 +166,17 @@ class MyRestServer(RestAPIServer):
         print "Doing something..."
 
 
+
 if __name__ == '__main__':
     srvr = MyRestServer()
     srvr.run_server()
+
     # sleep(15)
     #sendAndReceiveObjects(URL, Register("27.0.0.0.1",8080))
     registerWorker("172.24.31.198",8080)
     sleep(3)
     requestReceiver("130.245.124.254", 1, 1200, TCP_FIN_SCAN);
+
     #registerWorker("27.0.0.0.1",8080)
     #print pendingJobCnt;
 
