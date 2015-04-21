@@ -19,6 +19,11 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)  # Disable the annoyi
 from scapy.all import *
 
 # CONSTANTS
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect((SERVER_IP,SERVER_PORT))
+LOCAL_IP = s.getsockname()[0]
+s.close()
+
 SERVICE_ = URL + '/'
 job_queue = OrderedDict()
 new_job_id = 0
@@ -146,8 +151,8 @@ def tcpFINScan(ips, ports):
             inactive_ports = []
 
             # resp.summary()
-            oldstdout = sys.stdout
-            sys.stdout = open(os.devnull, 'w')
+            # oldstdout = sys.stdout
+            #sys.stdout = open(os.devnull, 'w')
             resp.summary(prn=lambda (s, r): catcher(
                 TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf(
                     "%TCP.sport%"), inactive_ports), lfilter=lambda (s, r): r.sprintf("%TCP.flags%") == "RA")
@@ -263,7 +268,7 @@ class RestAPIServer:
 
         try:
             res = Res(job)
-            res.workerIP_Port = res.workerIP_Port.format(socket.gethostbyname(socket.getfqdn()), SERVICE_PORT)
+            res.workerIP_Port = res.workerIP_Port.format(LOCAL_IP, LOCAL_SERVICE_PORT)
 
             if job.scanType == CONNECT_SCAN:
                 res.report = connect_scan(job.IPs, job.ports)
@@ -276,12 +281,10 @@ class RestAPIServer:
             else:
                 print 'Undefined scan-type in job. Ignoring it.'
                 return
-
-            #sendAndReceiveObjects(SERVER_URL, res)
-
         except Exception as e:
             pass
 
+        sendAndReceiveObjects(SERVER_URL, res)
         print 'REQ[{0}] processed with RESPONSE[{1}]'.format(jsonpickle.encode(job), jsonpickle.encode(res))
 
 
@@ -386,7 +389,10 @@ if __name__ == "__main__":
     #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
     #sendAndReceiveObjects(URL, Job(IS_UP, ["130.245.124.254"]))
     #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
-    #sendAndReceiveObjects(SERVER_URL, Register("172.24.31.198", 8080))
+
+    sendAndReceiveObjects(SERVER_URL, Register(LOCAL_IP, LOCAL_SERVICE_PORT))
+    #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
+    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [LOCAL_IP], 8080, 8080))
 
     while SERVER_ALIVE_FOR_SECONDS != 0:
         SERVER_ALIVE_FOR_SECONDS -= 1
