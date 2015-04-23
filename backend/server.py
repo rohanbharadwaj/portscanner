@@ -242,6 +242,7 @@ class MyRestServer(RestAPIServer):
                         job, lastresponsetime = assignedList.pop(workerID)
                         print 'Removed unresponsive worker {0}'.format(workerID)
                         pendingList[job.reqId].append(job)
+                        pendingJobCnt += 1
                         print 'Added job[{0}] back to pending list of req[{1}]'.format(jsonpickle.encode(job), jsonpickle.encode(pendingList[job.reqId]))
             sleep(2)
 
