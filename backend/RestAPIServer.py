@@ -370,6 +370,15 @@ def sendAndReceiveObjects(url, req, receive = False):
 
     return req
 
+def startSendingHeartBeats():
+    while(True):
+        try:
+            sleep(TIME_IN_SEC_BETWEEN_HEARTBEATS)
+            print 'Sending heartbeat to master {0}:{1} '.format(SERVER_IP, SERVER_PORT)
+            sendAndReceiveObjects(SERVER_URL, HeartBeat(LOCAL_IP, LOCAL_SERVICE_PORT))
+        except Exception as e:
+            pass
+
 
 if __name__ == "__main__":
     currentServer = RestAPIServer()
@@ -389,11 +398,13 @@ if __name__ == "__main__":
     #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
     #sendAndReceiveObjects(URL, Job(IS_UP, ["130.245.124.254"]))
     #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
-
-    sendAndReceiveObjects(SERVER_URL, Register(LOCAL_IP, LOCAL_SERVICE_PORT))
     #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
     #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [LOCAL_IP], 8080, 8080))
 
+    # START SENDING HEARTBEATS TO MASTER SERVER
+    threading.Thread(target=startSendingHeartBeats()).start()
+
+    # START SENDING HEART BEAT MESSAGES
     while SERVER_ALIVE_FOR_SECONDS != 0:
         SERVER_ALIVE_FOR_SECONDS -= 1
         sleep(1)

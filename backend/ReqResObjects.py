@@ -1,10 +1,17 @@
 __author__ = 'rami'
 
+from datetime import datetime
+
 IS_UP_BULK = "IS_UP_BULK"
 IS_UP = "IS_UP"
 TCP_SYN_SCAN = "TCP_SYN_SCAN"
 CONNECT_SCAN = "CONNECT_SCAN"
 TCP_FIN_SCAN = "TCP_FIN_SCAN"
+
+class HeartBeat(object):
+    def __init__(self, ip, port):
+        self.workerIP_Port = '{0}:{1}'.format(ip, port)
+        self.aliveAt = datetime.now()
 
 
 class Req(object):
@@ -33,13 +40,6 @@ class Job(Req):
             return False
         print self.jobId+"%%%%:::"+ other.jobId, cmp(self.jobId,other.jobId)
         return cmp(self.jobId,other.jobId)
-
-
-class Register(object):
-    def __init__(self, IP, port):
-        self.IP = IP
-        self.port = port
-
 
 class Res(object):
     def __init__(self, job):

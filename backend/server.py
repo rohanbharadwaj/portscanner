@@ -9,12 +9,13 @@ import ipcalc;
 from pymongo import MongoClient;
 from RestAPIServer import RestAPIServer
 from ReqResObjects import *
-
+import threading
 
 LIMIT = 1000
 IP_LIMIT = 100
 pendingList = {}
 assignedList = {}
+assignedListLock = threading.WLock()
 
 workerId = "127.0.0.1:8080"
 prefixUrl = 'http://';
@@ -52,16 +53,18 @@ def assignWork(jobObj):
     print "pendingList: "+ str(pendingList)
     print "pendingJobCnt: "+ str(pendingJobCnt)
     global pendingJobCnt
-    for worker in assignedList:
-        if(assignedList[worker]==None):
-            assignedList[worker] = jobObj.jobId
-            #response = requests.get(url, data=job)
-            print prefixUrl+worker
-            sendAndReceiveObjects(prefixUrl+worker,jobObj)
-            print "jobid: " + jobObj.jobId + " assigned to " + worker
-            if(pendingJobCnt>0):
-                pendingJobCnt -=1
-                return
+
+    with assignedListLock:
+        for worker in assignedList:
+            if(assignedList[worker]==None):
+                assignedList[worker] = [jobObj, datetime.now()]
+                #response = requests.get(url, data=job)
+                print prefixUrl+worker
+                sendAndReceiveObjects(prefixUrl+worker,jobObj)
+                print "jobid: " + jobObj.jobId + " assigned to " + worker
+                if(pendingJobCnt>0):
+                    pendingJobCnt -=1
+                    return
 
 # Get a pending job from queue
 def getPendingWork():
@@ -84,7 +87,8 @@ def getPendingWork():
 # Register a new worker and assign him work
 def registerWorker(ip,port):
     print "registerWorker"
-    assignedList[ip+":"+str(port)] = None;
+    with assignedListLock:
+        assignedList[ip+":"+str(port)] = None;
     print "new worker registered " + ip + ":" + str(port);
     job = getPendingWork()
     assignWork(job)
@@ -196,9 +200,10 @@ def receiveJobReport(res):
     reqId = res.reqId
     workerId = res.workerIP_Port
     scanType = res.scanType
-    if(assignedList[workerId]!=None and assignedList[workerId]==jobId):
-        assignedList[workerId]= None;
-        print "jobid: "+ jobId +"done by workerId: "+workerId;
+    with assignedListLock:
+        if(assignedList[workerId]!=None and assignedList[workerId][0].jobId ==jobId):
+            assignedList[workerId]= None;
+            print "jobid: "+ jobId +"done by workerId: "+workerId;
 
     processReport(reqId, jobId, scanType, jsonpickle.encode(res))
     job = getPendingWork()
@@ -214,12 +219,31 @@ def receiveJobReport(res):
 # Rest Server started
 class MyRestServer(RestAPIServer):
     def doJob(self, job):
-        if type(job) == Register:
-            registerWorker(job.IP,job.port)
+        if type(job) == HeartBeat:
+            workerID = "{0}:{1}".format(job.IP, job.port)
+            if workerID not in assignedList:
+                registerWorker(job.IP,job.port)
+            else:
+                assignedList[workerID][1] = job.aliveAt
+
         elif type(job) == Res:
             receiveJobReport(job)
         print "Doing something..."
 
+    def run_server(self):
+        super.run_server()
+        threading.Thread(target=self.reaper()).start()
+
+    def reaper(self):
+        while(True):
+            with assignedListLock:
+                for workerID in assignedList:
+                    if assignedList[workerID][1] > datetime.now() + datetime.timdelta(seconds = HEARTBEATS_SKIPPED_BEFORE_REAPING * TIME_IN_SEC_BETWEEN_HEARTBEATS):
+                        job, lastresponsetime = assignedList.pop(workerID)
+                        print 'Removed unresponsive worker {0}'.format(workerID)
+                        pendingList[job.reqId].append(job)
+                        print 'Added job[{0}] back to pending list of req[{1}]'.format(jsonpickle.encode(job), jsonpickle.encode(pendingList[job.reqId]))
+            sleep(2)
 
 
 if __name__ == '__main__':
