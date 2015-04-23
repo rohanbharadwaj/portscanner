@@ -8,6 +8,7 @@ TCP_SYN_SCAN = "TCP_SYN_SCAN"
 CONNECT_SCAN = "CONNECT_SCAN"
 TCP_FIN_SCAN = "TCP_FIN_SCAN"
 
+
 class HeartBeat(object):
     def __init__(self, ip, port):
         self.workerIP_Port = '{0}:{1}'.format(ip, port)
@@ -22,24 +23,25 @@ class Req(object):
 
 
 class Job(Req):
-    def __init__(self, scanType, IPs, startPort=1, endPort=100, jobId=None, reqId=None):
-        # super(Job, self).__init__(scanType, IPs, ports)
+    def __init__(self, scanType, IPs, scanSequentially=True, startPort=1, endPort=100, jobId=None, reqId=None):
+        self.scanSequentially = scanSequentially
         self.scanType = scanType
         self.IPs = IPs
         self.ports = list(range(startPort, endPort + 1))
         self.jobId = jobId
         self.reqId = reqId
+
     def __eq__(self, other):
-        if(other==None):
+        if (other == None):
             return False
-        print self.jobId+":::::::"+ other.jobId, self.jobId == other.jobId
+        print self.jobId + ":::::::" + other.jobId, self.jobId == other.jobId
         return self.jobId == other.jobId
 
     def __cmp__(self, other):
-        if(other==None):
+        if (other == None):
             return False
-        print self.jobId+"%%%%:::"+ other.jobId, cmp(self.jobId,other.jobId)
-        return cmp(self.jobId,other.jobId)
+        return cmp(self.jobId, other.jobId)
+
 
 class Res(object):
     def __init__(self, job):
