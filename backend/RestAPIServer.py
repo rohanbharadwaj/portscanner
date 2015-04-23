@@ -217,7 +217,7 @@ def tcpSYNScan(ips, ports):
 
 #----------------------END OF SCANNER LOGIC-----------------------------------------------
 
-class RestAPIServer:
+class RestAPIServer(object):
     app = None
 
     def GET(self, id=None):

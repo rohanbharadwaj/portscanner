@@ -1,8 +1,9 @@
 import uuid;
 import json;
 from time import sleep
+from datetime import timedelta
 import requests
-
+from config import *
 import jsonpickle
 
 import ipcalc;
@@ -15,7 +16,7 @@ LIMIT = 1000
 IP_LIMIT = 100
 pendingList = {}
 assignedList = {}
-assignedListLock = threading.WLock()
+assignedListLock = threading.Lock()
 
 workerId = "127.0.0.1:8080"
 prefixUrl = 'http://';
@@ -48,11 +49,11 @@ def sendAndReceiveObjects(url, req):
 
 # Assign a job to worker
 def assignWork(jobObj):
+    global pendingJobCnt
     print "assignWork"
     print "assignedList: "+ str(assignedList)
     print "pendingList: "+ str(pendingList)
     print "pendingJobCnt: "+ str(pendingJobCnt)
-    global pendingJobCnt
 
     with assignedListLock:
         for worker in assignedList:
@@ -85,13 +86,13 @@ def getPendingWork():
 
 
 # Register a new worker and assign him work
-def registerWorker(ip,port):
+def registerWorker(workerIP_Port):
     print "registerWorker"
     with assignedListLock:
-        assignedList[ip+":"+str(port)] = None;
-    print "new worker registered " + ip + ":" + str(port);
+        assignedList[workerIP_Port] = None;
+    print "new worker registered " + workerIP_Port;
     job = getPendingWork()
-    assignWork(job)
+    if job: assignWork(job)
 
 
 # Receive request from UI and divide the work into jobs then assign them
@@ -220,25 +221,27 @@ def receiveJobReport(res):
 class MyRestServer(RestAPIServer):
     def doJob(self, job):
         if type(job) == HeartBeat:
-            workerID = "{0}:{1}".format(job.IP, job.port)
+            workerID = job.workerIP_Port
             if workerID not in assignedList:
-                registerWorker(job.IP,job.port)
+                registerWorker(workerID)
             else:
-                assignedList[workerID][1] = job.aliveAt
+                if assignedList[workerID]:
+                    assignedList[workerID][1] = job.aliveAt
 
         elif type(job) == Res:
             receiveJobReport(job)
         print "Doing something..."
 
     def run_server(self):
-        super.run_server()
-        threading.Thread(target=self.reaper()).start()
+        super(MyRestServer, self).run_server()
+        threading.Thread(target=self.reaper).start()
 
     def reaper(self):
+        global pendingJobCnt,HEARTBEATS_SKIPPED_BEFORE_REAPING, TIME_IN_SEC_BETWEEN_HEARTBEATS
         while(True):
             with assignedListLock:
                 for workerID in assignedList:
-                    if assignedList[workerID][1] > datetime.now() + datetime.timdelta(seconds = HEARTBEATS_SKIPPED_BEFORE_REAPING * TIME_IN_SEC_BETWEEN_HEARTBEATS):
+                    if assignedList[workerID] and assignedList[workerID][1] > datetime.now() + timedelta(seconds = HEARTBEATS_SKIPPED_BEFORE_REAPING * TIME_IN_SEC_BETWEEN_HEARTBEATS):
                         job, lastresponsetime = assignedList.pop(workerID)
                         print 'Removed unresponsive worker {0}'.format(workerID)
                         pendingList[job.reqId].append(job)
@@ -258,7 +261,8 @@ if __name__ == '__main__':
 
     #requestReceiver("130.245.124.254", 1, 1200, TCP_FIN_SCAN);
     #requestReceiver("172.24.22.0/24", 1, 1200, TCP_FIN_SCAN);
-    requestReceiver("130.245.124.254", 1, 200, TCP_FIN_SCAN);
+    #requestReceiver("130.245.124.254", 1, 2000, TCP_FIN_SCAN);
+    requestReceiver("172.24.22.0/26", 1, 2000, IS_UP_BULK);
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
