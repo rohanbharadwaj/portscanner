@@ -25,8 +25,9 @@ def setup(scanType):  # setsup connection and returns collection
         collection = db.tcp_syn_scan
     return collection
 
-def getCount(collection,reqid): # get count of documents based on reqId
+def getCount(reqid,scanType): # get count of documents based on reqId
     # print collection.count()
+    collection = setup(scanType)
     return collection.count()
 
 def getRawData(collection,reqid):
@@ -35,7 +36,13 @@ def getRawData(collection,reqid):
         result.append(e)
     return result   
     # print collection.find({'reqId':reqid})
-    # return collection.find({'reqId':reqid})    
+    # return collection.find({'reqId':reqid})
+
+def fetchProcessedData(reqid,scanType):
+    collection = setup(scanType)
+    jsondata = getRawData(collection,reqid)
+    # print jsondata
+    return preprocess(jsondata)
 
 
 def getdata():
@@ -76,6 +83,7 @@ def preprocess(jsondata):
     data2 = {}
     data1 = []
     data = {}
+    result = []
     #SYN FYN
 
     for n in xrange(numobj):
@@ -84,14 +92,22 @@ def preprocess(jsondata):
             for i in xrange(numres):
                 data2 = {}
                 data2["reqId"] = jsondata[n]["reqId"]
+                data2["timestamp"] = jsondata[n]["timestamp"]
+                data2["jobId"] = jsondata[n]["jobId"]
+                data2["scanSequentially"] = jsondata[n]["scanSequentially"]
+                data2["ports"] = ','.join(map(str,jsondata[n]["ports"]))
+                data2["workerIP_Port"] = jsondata[n]["workerIP_Port"]
                 data2["scannedports"] = str(min(jsondata[n]["ports"]))+"-"+str(max(jsondata[n]["ports"]))
                 data2["ip"] = jsondata[n]["report"][i][0]
                 data2["openports"] = ','.join(map(str,jsondata[n]["report"][i][1]))
                 # data1.append(data2)
                 data = merge_two_dicts(data,data2)
-            print json.dumps(data)
+            result.append(data)
+            #print json.dumps(data)
         except (TypeError):
-            print "No reports"    
+            print "No reports"
+    #print result        
+    return json.dumps(result)            
 
 
 
@@ -111,11 +127,12 @@ def preprocess(jsondata):
 
 def Test():
     reqid = "128bca28-ea3a-11e4-a9c1-bc773780be52"
-    collection = setup(CONNECT_SCAN)
-    #getCount(collection,reqid)
+    #collection = setup(CONNECT_SCAN)
+    fetchProcessedData(reqid,CONNECT_SCAN)
+    # print getCount(reqid)
     # getRawData(collection,reqid)  
-    jsondata = getRawData(collection,reqid)    
-    preprocess(jsondata)
+    #jsondata = getRawData(collection,reqid)    
+    # preprocess(jsondata)
 
 if __name__ == '__main__':
     Test()

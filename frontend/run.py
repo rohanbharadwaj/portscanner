@@ -3,7 +3,7 @@ from flask import render_template
 from flask import jsonify
 from flask import request,json
 from data import fetch
-from datautil import getdata
+from datautil import *
 
 app = Flask(__name__)
 
@@ -70,7 +70,10 @@ def receivedata():
     # user =  request.form['username'];
     # password = request.form['password'];
     print connect_input_ip
-    return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan});
+    reqId = "128bca28-ea3a-11e4-a9c1-bc773780be52"
+    numjobs = 11
+    return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan,
+                        'reqId':reqId,'numjobs':numjobs});
 
 @app.route('/loaddata')
 def loaddata():
@@ -88,13 +91,22 @@ def submit():
 
 @app.route('/getJobStatus',methods=['POST'])
 def getJobStatus():
-    i = 0
-    i = i + 1
-    # reqid = request.args.get("reqid")
-    if(i>8):
-        return json.dumps([{'done':'true','pending':0}])
-    else:
-        return json.dumps([{'done':'false','pending':8}])  
+    reqId = request.form['reqId']
+    scantype = request.form['scantype']
+    count = getCount(reqId,scantype)
+    return json.dumps([{'reqId':reqId,'count':count}])
+    # i = 0
+    # if(i>8):
+    #     return json.dumps([{'name':name,'done':'true','pending':0}])
+    # else:
+    #     return json.dumps([{'name':name,'done':'false','pending':8}])
+
+@app.route('/fetchResults',methods=['POST'])
+def fetchResults():
+    reqId = request.form['reqId']
+    scantype = request.form['scantype']
+    return fetchProcessedData(reqId,scantype)
+
 
 @app.route('/connect_post',methods=['POST'])
 def connect_post():

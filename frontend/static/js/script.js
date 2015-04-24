@@ -1,7 +1,8 @@
 $(function(){
 
 	var reqId;
-	var notdone = true;
+	var done = false;
+	var totalobj;
 
    $('#connectSubmit').click(function(){
       // alert("rohan")
@@ -12,13 +13,56 @@ $(function(){
          type: 'POST',
          dataType: 'json',
          success: function(response){
-            console.log(response["connect_input_ip"]);
+            console.log(response["reqId"]);
+            reqId = response["reqId"];
+            totalobj = response["numjobs"];
+            connectPoll(reqId,totalobj);
          },
          error: function(error){
             console.log(error);
          }
       });
    });
+
+function fetchConnectResults(reqid){
+	$.ajax({
+			url: '/fetchResults',
+			data: {"reqId":reqId,"scantype":"CONNECT_SCAN"},
+			type: 'POST',
+			success: function(response){
+				console.log(response);
+				$('#connect-response').append(response)
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+}
+
+   function connectPoll(reqid,totalJobs){
+    $.post('/getJobStatus',{"reqId":reqId,"scantype":"CONNECT_SCAN"},function(data) {
+        //console.log(reqid);  // process results here
+        //console.log(data[0].done);
+        // totalJobs = response[0].numjobs;
+        // console.log(reqId);
+         console.log(data[0].count);
+         console.log(data[0].reqId);
+        if(data[0].count < totalobj && !done){
+        // 	// Poll until the job is not ready
+        	// remaining = data[0].pending;
+         // 	updateProgress((remaining/totalJobs)*100);
+
+         }
+         else if(data[0].count >= totalobj && !done){
+        // //job is completed display on the UI
+        	fetchConnectResults(reqid)
+        	console.log("Job completed")
+        	done = true
+
+         }
+        setTimeout(connectPoll,5000);
+    },'json');
+	}
 
 
    $('#register').click(function(){
