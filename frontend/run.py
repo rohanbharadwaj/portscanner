@@ -65,8 +65,8 @@ def senddata():
 @app.route('/receivedata', methods=['POST'])
 def receivedata():
     connect_input_ip = request.form['connect_input_ip']
-    port_range = request.form['port_range']
-    type_scan = request.form['optionsRadios']
+    port_range = request.form['connect_port']
+    type_scan = request.form['seqran']
     # user =  request.form['username'];
     # password = request.form['password'];
     print connect_input_ip

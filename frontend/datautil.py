@@ -14,11 +14,26 @@ ip = 'localhost'
 port = 27017
 
 DB = 'secaffe'
-CONNECTTABLE =  'connect_scan'
-ISUPTABLE = 'is_up_scan'
-FINTABLE = 'tcp_fin_scan'
-SYNTABLE = 'tcp_syn_scan'
+IS_UP = "IS_UP"
+TCP_SYN_SCAN = "TCP_SYN_SCAN"
+CONNECT_SCAN = "CONNECT_SCAN"
+TCP_FIN_SCAN = "TCP_FIN_SCAN"
 
+def setup(scanType):  # setsup connection and returns collection
+    client = MongoClient(ip,port)
+    db = client.secaffe
+    if(scanType==CONNECT_SCAN):
+        collection = db.connect_scan
+    elif(scanType==IS_UP_BULK):
+        collection = db.is_up_scan
+    elif(scanType==TCP_FIN_SCAN):
+        collection = db.tcp_fin_scan
+    elif(scanType==TCP_SYN_SCAN):
+        collection = db.tcp_syn_scan
+    return collection
+
+def getCount(collection,reqid): # get count of documents based on reqId
+    print collection.count()
 
 
 def getdata():
@@ -49,8 +64,6 @@ def getdata():
     # #return data
 
 
-# def setup():
-#    return MongoClient(ip,port)
    
 # def insertdata(client,json_data):
 #     #client = MongoClient(ip,port) 
@@ -65,9 +78,14 @@ def getdata():
 #     for e in table.find():
 #         print e
 
+def getCount_Test():
+    reqid = "128bca28-ea3a-11e4-a9c1-bc773780be52"
+    collection = setup(CONNECT_SCAN)
+    getCount(collection,reqid)
+
 if __name__ == '__main__':
-    getdata()
-# if __name__ == '__main__':
+    getCount_Test()
+    # getdata()
 #     client = setup()
 #     ip = []
 #     for i in xrange(10):

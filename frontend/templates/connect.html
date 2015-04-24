@@ -34,13 +34,13 @@
 
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-              <ul class="sidebar-nav">
+            <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     <a href="#">
                         Secaffe
                     </a>
                 </li>
-               <li>
+                <li>
                     <a href="/index">Dashboard</a>
                 </li>
                 <li>
@@ -66,7 +66,7 @@
         <!-- /#sidebar-wrapper -->
 
         <!-- Page Content -->
- <!-- Page Content -->
+        <!-- Page Content -->
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <div class="row">
@@ -74,61 +74,61 @@
                         
                     </div> -->
                     <div class="col-lg-8">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Connect
-                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
-                            <!-- Nav tabs -->
-                            <ul class="nav nav-pills">
-                                <li class="active"><a href="#connect_scan" data-toggle="tab">Connect Scan</a>
-                                </li>
-                               <!--  <li><a href="#ipblock" data-toggle="tab">Block of IP's</a>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Connect
+                            </div>
+                            <!-- /.panel-heading -->
+                            <div class="panel-body">
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-pills">
+                                    <li class="active"><a href="#connect_scan" data-toggle="tab">Connect Scan</a>
+                                    </li>
+                                    <!--  <li><a href="#ipblock" data-toggle="tab">Block of IP's</a>
                                 </li> -->
-                            </ul>
+                                </ul>
 
-                            <!-- Tab panes -->
-                            <div class="tab-content">
-                                <div class="tab-pane fade in active" id="connect_scan">
-                                    <!-- <h4>Single IP</h4> -->
-                                    <p>
-                                        <form  id="connect-form" role="form">
-                                        <div class="form-group">
-                                        <div class="col-lg-6">
-                                            <label>IP Address</label>
-                                            <input id="input_ip" name="connect_input_ip" class="form-control input-small" placeholder="172.16.2.3">
-                                            <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
-                                            <div class="form-group">
-                                            <label>Port Range</label>
-                                              <input id="port" class="form-control" placeholder="0-1024">                                              
-                                            <p class="help-block">selcet a port range.</p>
-                                            </div>
-                                            <div class="form-group">
-                                            <label>Type of scan</label>
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>Sequential
-                                                </label>
-                                            </div>
-                                            <div class="radio">
-                                                <label>
-                                                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">Random
-                                                </label>
-                                            </div>
-                                        </div>
-                                            <button type="button" id="connect_button" class="btn btn-default">Scan</button>
-                                         </div>   
-                                        </div>
-                                    </form>
-                                    </p>
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div class="tab-pane fade in active" id="connect_scan">
+                                        <!-- <h4>Single IP</h4> -->
+                                        <p>
+                                            <form id="connect-form" role="form">
+                                                <div class="form-group">
+                                                    <div class="col-lg-6">
+                                                        <label>IP Address</label>
+                                                        <input id="input_ip" name="connect_input_ip" class="form-control input-small" placeholder="172.16.2.3">
+                                                        <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
+                                                        <div class="form-group">
+                                                            <label>Port Range</label>
+                                                            <input id="connect_port" name="connect_port" class="form-control" placeholder="0-1024">
+                                                            <p class="help-block">selcet a port range.</p>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Type of scan</label>
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" name="seqran" id="sequential" value="sequential" checked>Sequential
+                                                                </label>
+                                                            </div>
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" name="seqran" id="random" value="random">Random
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" id="connectSubmit" class="btn btn-default">Scan</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
+                            <!-- /.panel-body -->
                         </div>
-                        <!-- /.panel-body -->
+                        <!-- /.panel -->
                     </div>
-                    <!-- /.panel -->
-                </div>
                 </div>
             </div>
         </div>
@@ -145,10 +145,10 @@
 
     <!-- Menu Toggle Script -->
     <script>
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
     </script>
     <script type="text/javascript" src="static/js/script.js"></script>
 

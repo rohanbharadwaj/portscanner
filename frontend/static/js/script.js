@@ -3,21 +3,16 @@ $(function(){
 	var reqId;
 	var notdone = true;
 
-
-   $('#connect_button').click(function(){
-      console.log("rohan");
-      // var user = $('#txtUsername').val();
-      // var pass = $('#txtPassword').val();
+   $('#connectSubmit').click(function(){
+      // alert("rohan")
+      console.log($('form'));
       $.ajax({
-         url: '/connect_post',
+         url: '/receivedata',
          data: $('form').serialize(),
-         data: {
-            format: 'json'
-         },
          type: 'POST',
+         dataType: 'json',
          success: function(response){
-            // $("#display").html(response);
-            console.log(response);
+            console.log(response["connect_input_ip"]);
          },
          error: function(error){
             console.log(error);
@@ -25,8 +20,9 @@ $(function(){
       });
    });
 
-	$('#register').click(function(){
-		console.log($('form'));
+
+   $('#register').click(function(){
+		//console.log($('form'));
 		var user = $('#txtUsername').val();
 		var pass = $('#txtPassword').val();
 		$.ajax({
@@ -37,10 +33,11 @@ $(function(){
 				console.log(response);
 			},
 			error: function(error){
-				//console.log(error);
+				console.log(error);
 			}
 		});
 	});
+
 
 	$('#getReports').click(function(){
 		// alert("yayy")
