@@ -6,6 +6,8 @@ import threading
 
 import jsonpickle
 
+from config import *
+
 import ipcalc;
 from pymongo import MongoClient;
 from RestAPIServer import RestAPIServer
@@ -270,8 +272,10 @@ if __name__ == '__main__':
 
 
     #requestReceiver("172.24.22.0/26", 1, 1200, TCP_FIN_SCAN);
-    requestReceiver("130.245.124.254", 1, 2000, TCP_FIN_SCAN);
-    requestReceiver("172.24.22.0/26", 1, 2000, IS_UP_BULK);
+    #requestReceiver("130.245.124.254", 1, 5000, TCP_FIN_SCAN);
+    #requestReceiver("172.24.22.0/26", 1, 2000, IS_UP_BULK);
+
+    requestReceiver("130.245.124.254", 1, 5000, CONNECT_SCAN);
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
