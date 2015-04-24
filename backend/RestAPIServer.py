@@ -146,13 +146,13 @@ def tcpFINScan(ips, ports):
         for ip in upIPs:
             src_port = RandShort()  # Getting a random port as source port
             p = IP(dst=ip) / TCP(sport=src_port, dport=ports, flags='F')  # Forging SYN packet
-            resp, unresp = sr(p, timeout=2)  # Sending packet
+            resp, unresp = sr(p, timeout=1)  # Sending packet
             active_ports = []
             inactive_ports = []
 
             # resp.summary()
-            # oldstdout = sys.stdout
-            # sys.stdout = open(os.devnull, 'w')
+            oldstdout = sys.stdout
+            sys.stdout = open(os.devnull, 'w')
             resp.summary(prn=lambda (s, r): catcher(
                 TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf(
                     "%TCP.sport%"), inactive_ports), lfilter=lambda (s, r): r.sprintf("%TCP.flags%") == "RA")
@@ -167,7 +167,7 @@ def tcpFINScan(ips, ports):
 
             ret.append([ip, active_ports])
 
-    print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
+    #print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
 
     duration = time.time() - start_time
     print "%s Scan Completed in %fs" % (ips, duration)
@@ -270,6 +270,7 @@ class RestAPIServer(object):
         try:
             res = Res(job)
             res.workerIP_Port = res.workerIP_Port.format(LOCAL_IP, LOCAL_SERVICE_PORT)
+            res.timestamp = str(datetime.now())
 
             if job.scanType == CONNECT_SCAN:
                 res.report = connect_scan(job.IPs, job.ports)
@@ -373,7 +374,7 @@ def sendAndReceiveObjects(url, req, receive=False):
 
 
 def startSendingHeartBeats():
-    while (True):
+    #while (True):
         try:
             sleep(TIME_IN_SEC_BETWEEN_HEARTBEATS)
             print 'Sending heartbeat to master {0}:{1} '.format(SERVER_IP, SERVER_PORT)
