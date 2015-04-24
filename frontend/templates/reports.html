@@ -14,9 +14,39 @@
     <!-- Bootstrap Core CSS -->
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
 
+
     <!-- Custom CSS -->
     <link href="static/css/simple-sidebar.css" rel="stylesheet">
     <link rel="shortcut icon" href="static/images/coffee.ico" type="image/x-icon" />
+        <script src="static/js/jquery.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/js/script.js"></script>
+
+
+
+    <script type="text/javascript">
+    function queryParams() {
+        return {
+            type: 'owner',
+            sort: 'updated',
+            direction: 'desc',
+            per_page: 100,
+            page: 1
+        };
+    }
+    function fetchReport(){
+        alert(document.getElementById("input_ip").value());
+    }
+</script>
+    <!-- Latest compiled and minified CSS -->
+<script type="text/javascript" src="static/js/jquery.js"></script>
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="static/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="static/js/bootstrap-table.js"></script>
+<link rel="stylesheet" href="static/css/bootstrap-table.css"></script>
     
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -25,6 +55,17 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script>
+        $(document).ready(function(){
+            $("#results_id").hide();
+            // $("#hide").click(function(){
+            //     $("p").hide();
+            // });
+            // $("#show").click(function(){
+            //     $("p").show();
+            // });
+        });
+        </script>
 
 </head>
 
@@ -37,7 +78,7 @@
               <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     <a href="#">
-                        Secaffee
+                        Secaffe
                     </a>
                 </li>
                 <li>
@@ -69,22 +110,63 @@
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-10">
                         Reports
+                               <form id="get_reports_form" role="form">
+                                        <div class="form-group">
+                                        <div class="col-lg-6">
+                                            <label>IP Address</label>
+                                            <input name="input_ip" id="input_ip" class="form-control input-small" placeholder="172.16.2.3">
+                                            <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
+                                            <button id="getReports" type="button" class="btn btn-default">Scan</button>
+                                         </div>   
+                                        </div>
+                        <div id="reports"></div>
+
                     </div>
                 </div>
             </div>
         </div>
         <!-- /#page-content-wrapper -->
+        <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-10">
+        <div class="progress" style="height:22px;">
+            <div class="progress-bar progress-striped active" id="progressBar" class="bar" style="height:22px;width:1%;background-color:green"></div>
+        </div>
+    </div></div></div>
+    <div id="results_id" class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-10">
+                     <div id="results">
+                    <table data-toggle="table"
+                       data-url="/mongogetdata"
+                       data-query-params="queryParams"
+                       data-pagination="true"
+                       data-search="true"
+                       data-height="300">
+                    <thead>
+                    <tr>
+                        <th data-field="ip">IP</th>
+                        <th data-field="openports">Open Ports</th>
+                        <!-- <th data-field="forks_count">Forks</th>
+                        <th data-field="description">Description</th>
+                        <th data-field="id">ID</th> -->
+                    </tr>
+                    </thead>
+                </table>
+                     </div>       
+    </div></div></div>     
+    <div id="test"></div>               
 
     </div>
     <!-- /#wrapper -->
 
     <!-- jQuery -->
-    <script src="static/js/jquery.js"></script>
+
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="static/js/bootstrap.min.js"></script>
+    
 
     <!-- Menu Toggle Script -->
     <script>
@@ -92,6 +174,8 @@
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
     });
+
+  
     </script>
 
 </body>
