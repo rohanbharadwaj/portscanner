@@ -1,0 +1,30 @@
+<!DOCTYPE>
+<html ng-app="myApp">
+<head>
+    <title>Angular</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+    <script src="static/js/ang_controller.js"></script>
+     <link href="static/css/ang.css" rel="stylesheet">
+</head>
+<body>
+<div>
+<div ng-controller="PeopleCtrl">
+    <p>    Click <a ng-click="loadPeople()">here</a> to load data.</p>
+<table>
+    <tr>
+        <th>Id</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+    </tr>
+    {% raw %}
+    <tr ng-repeat="person in people">
+        <td>{{person.id}}</td>
+        <td>{{person.firstName}}</td>
+        <td>{{person.lastName}}</td>
+    </tr>
+    {% endraw %}
+</table>
+</div>
+</div>
+</body> 
+        

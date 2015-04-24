@@ -3,6 +3,7 @@ from flask import render_template
 from flask import jsonify
 from flask import request,json
 from data import fetch
+from datautil import getdata
 
 app = Flask(__name__)
 
@@ -71,6 +72,39 @@ def receivedata():
     print connect_input_ip
     return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan});
 
+@app.route('/loaddata')
+def loaddata():
+    return render_template('angular_view.html')
+
+@app.route('/mongogetdata',methods=['GET'])
+def mongogetdata():
+    return getdata()
+
+@app.route('/submit',methods=['POST'])
+def submit():
+    ip = request.form['input_ip']
+    return json.dumps([{'reqId':'12345','numjobs':'8'}])
+    #return json.dumps([{'ip':ip}])    
+
+@app.route('/getJobStatus',methods=['POST'])
+def getJobStatus():
+    i = 0
+    i = i + 1
+    # reqid = request.args.get("reqid")
+    if(i>8):
+        return json.dumps([{'done':'true','pending':0}])
+    else:
+        return json.dumps([{'done':'false','pending':8}])  
+
+@app.route('/connect_post',methods=['POST'])
+def connect_post():
+    connect_input_ip = request.form['connect_input_ip']
+    port_range = request.form['port_range']
+    type_scan = request.form['optionsRadios']
+    # user =  request.form['username'];
+    # password = request.form['password'];
+    print connect_input_ip
+    return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan});
 
 if __name__ == '__main__':
     app.run(debug=True)
