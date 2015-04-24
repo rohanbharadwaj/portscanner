@@ -1,6 +1,6 @@
 __author__ = 'rami'
 
-from datetime import datetime
+from optparse import OptionParser
 from time import sleep
 import errno
 from collections import OrderedDict
@@ -20,7 +20,7 @@ from scapy.all import *
 
 # CONSTANTS
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect((SERVER_IP,SERVER_PORT))
+s.connect((SERVER_IP, SERVER_PORT))
 LOCAL_IP = s.getsockname()[0]
 s.close()
 
@@ -78,9 +78,9 @@ def connect_scan(ips, ports):
             ready_to_read, ready_to_write, in_error = select([], sock, [], fin_time - cur_time)
             cur_time = time.time()
             for elem in ready_to_write:
-                sock.remove(elem)  #Remove from the select descriptor list
+                sock.remove(elem)  # Remove from the select descriptor list
                 err_code = elem.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
-                #If in error, the port is closed, cleanup our socket
+                # If in error, the port is closed, cleanup our socket
                 if err_code:
                     print(elem, errno.errorcode[err_code])
                     elem.close()
@@ -89,12 +89,12 @@ def connect_scan(ips, ports):
                     elem.setblocking(1)
                     open_socks.append(elem)
 
-        #Close any sockets with no response
+        # Close any sockets with no response
         for elem in sock:
             print('Unresponsive sock: ', elem.getpeername())
             elem.close()
 
-        #Send something to grab the banner
+        # Send something to grab the banner
         for elem in open_socks:
             print('Open sock: ', elem.getpeername())
             elem.send('hi')
@@ -138,7 +138,7 @@ def connect_scan(ips, ports):
 def tcpFINScan(ips, ports):
     conf.verb = 0  # Disable verbose in sr(), sr1() methods
     start_time = time.time()
-    #upIPs = get_up(ips)
+    # upIPs = get_up(ips)
     upIPs = ips
     ret = []
     if upIPs:
@@ -152,7 +152,7 @@ def tcpFINScan(ips, ports):
 
             # resp.summary()
             # oldstdout = sys.stdout
-            #sys.stdout = open(os.devnull, 'w')
+            # sys.stdout = open(os.devnull, 'w')
             resp.summary(prn=lambda (s, r): catcher(
                 TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf(
                     "%TCP.sport%"), inactive_ports), lfilter=lambda (s, r): r.sprintf("%TCP.flags%") == "RA")
@@ -173,10 +173,11 @@ def tcpFINScan(ips, ports):
     print "%s Scan Completed in %fs" % (ips, duration)
     return ret
 
+
 def tcpSYNScan(ips, ports):
     conf.verb = 0  # Disable verbose in sr(), sr1() methods
     start_time = time.time()
-    #upIPs = get_up(ips)
+    # upIPs = get_up(ips)
     upIPs = get_up(ips)
     ret = []
     if upIPs:
@@ -215,9 +216,9 @@ def tcpSYNScan(ips, ports):
     return ret
 
 
-#----------------------END OF SCANNER LOGIC-----------------------------------------------
+# ----------------------END OF SCANNER LOGIC-----------------------------------------------
 
-class RestAPIServer:
+class RestAPIServer(object):
     app = None
 
     def GET(self, id=None):
@@ -228,14 +229,14 @@ class RestAPIServer:
             elif (int(id) in job_queue):
                 return jsonpickle.encode(job_queue[int(id)])
         except ValueError as ve:
-            pass  #forget about int() conversion
+            pass  # forget about int() conversion
         return web.notfound()
 
     def POST(self, id=None):
         global job_queue, new_job_id
         job_queue[new_job_id] = jsonpickle.decode(web.data())
         new_job_id += 1
-        #print 'ID is Now %d' % new_job_id, self, job_queue
+        # print 'ID is Now %d' % new_job_id, self, job_queue
         return jsonpickle.encode({'work_id': new_job_id - 1})
 
     def DELETE(self, id):
@@ -302,10 +303,10 @@ class RestAPIServer:
                     # DO SOMETHING
                     self.doJob(job)
                     # DONE SOMETHING
-                    #self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
+                    # self.app.fvars['job_queue'][processingID] = 'Processed @ %s' % str(datetime.now())
                 processingID += 1
             else:
-                #print "Nothing to process!"
+                # print "Nothing to process!"
                 sleep(1)
 
     def run_server(self):
@@ -350,11 +351,11 @@ class RestAPIServer:
         return True
 
 
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # RUN PROGRAM - DO NOT CHANGE
 #-----------------------------------------------------------------------
 
-def sendAndReceiveObjects(url, req, receive = False):
+def sendAndReceiveObjects(url, req, receive=False):
     try:
         r = requests.post(url, data=jsonpickle.encode(req))
         work_id = r.json()['work_id']
@@ -371,7 +372,27 @@ def sendAndReceiveObjects(url, req, receive = False):
     return req
 
 
+def startSendingHeartBeats():
+    while (True):
+        try:
+            sleep(TIME_IN_SEC_BETWEEN_HEARTBEATS)
+            print 'Sending heartbeat to master {0}:{1} '.format(SERVER_IP, SERVER_PORT)
+            sendAndReceiveObjects(SERVER_URL, HeartBeat(LOCAL_IP, LOCAL_SERVICE_PORT))
+        except Exception as e:
+            pass
+
+
 if __name__ == "__main__":
+    parser = OptionParser()
+    parser.add_option("-P", "--serverip", dest="serverip", help="Server IP", default=SERVER_IP)
+    parser.add_option("-I", "--serverport", dest="serverport", help="Server Port", default=SERVER_PORT)
+    parser.add_option("-p", "--port", dest="port", help="Local Port", default=LOCAL_SERVICE_PORT)
+    (options, args) = parser.parse_args()
+    print 'USER DEFINED OPTIONS : {0}'.format(options)
+    SERVER_IP = options.__dict__['serverip']
+    SERVER_PORT = options.__dict__['serverport']
+    LOCAL_SERVICE_PORT = options.__dict__['port']
+
     currentServer = RestAPIServer()
     currentServer.run_server()
 
@@ -389,11 +410,13 @@ if __name__ == "__main__":
     #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
     #sendAndReceiveObjects(URL, Job(IS_UP, ["130.245.124.254"]))
     #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
-
-    sendAndReceiveObjects(SERVER_URL, Register(LOCAL_IP, LOCAL_SERVICE_PORT))
     #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
     #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [LOCAL_IP], 8080, 8080))
 
+    # START SENDING HEARTBEATS TO MASTER SERVER
+    threading.Thread(target=startSendingHeartBeats()).start()
+
+    # START SENDING HEART BEAT MESSAGES
     while SERVER_ALIVE_FOR_SECONDS != 0:
         SERVER_ALIVE_FOR_SECONDS -= 1
         sleep(1)
