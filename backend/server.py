@@ -124,7 +124,7 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
                     else:
                         enPort = stPort + LIMIT
                     jobid = str(uuid.uuid1());
-                    jobObj = Job(scanType, [scanIp], stPort, enPort, jobid, reqid)
+                    jobObj = Job(scanType, [scanIp],True, stPort, enPort, jobid, reqid)
                     print str(jobObj)
                     pendingList[reqid].append(jobObj);
                     pendingJobCnt += 1
@@ -144,7 +144,7 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
                         IPs.append(str(ip))
                     else:
                         jobid = str(uuid.uuid1())
-                        jobObj = Job(scanType, IPs, stPort, enPort, jobid, reqid)
+                        jobObj = Job(scanType, IPs, True ,stPort, enPort, jobid, reqid)
                         print str(jobObj.IPs), str(jobObj.ports)
                         pendingList[reqid].append(jobObj)
                         pendingJobCnt += 1
@@ -154,7 +154,7 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
                     cnt += 1
                 else:
                     jobid = str(uuid.uuid1())
-                    jobObj = Job(scanType, [scanIp], stPort, enPort, jobid, reqid)
+                    jobObj = Job(scanType, [scanIp], True, stPort, enPort, jobid, reqid)
                     print str(jobObj.IPs), str(jobObj.ports)
                     pendingList[reqid].append(jobObj)
                     pendingJobCnt += 1
@@ -175,7 +175,7 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
             if ((IP_LIMIT * chkCnt == cnt or netsize == cnt)):
                 chkCnt += 1
                 jobid = str(uuid.uuid1())
-                jobObj = Job(scanType, IPs, 0, 100, jobid, reqid)
+                jobObj = Job(scanType, IPs, True, 1, 100,jobid, reqid)
                 print str(jobObj)
                 pendingList[reqid].append(jobObj)
                 pendingJobCnt += 1
@@ -267,8 +267,10 @@ if __name__ == '__main__':
     #sleep(3)
 
     #requestReceiver("130.245.124.254", 1, 1200, TCP_FIN_SCAN);
-    #requestReceiver("172.24.22.0/24", 1, 1200, TCP_FIN_SCAN);
-    #requestReceiver("130.245.124.254", 1, 2000, TCP_FIN_SCAN);
+
+
+    #requestReceiver("172.24.22.0/26", 1, 1200, TCP_FIN_SCAN);
+    requestReceiver("130.245.124.254", 1, 2000, TCP_FIN_SCAN);
     requestReceiver("172.24.22.0/26", 1, 2000, IS_UP_BULK);
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
