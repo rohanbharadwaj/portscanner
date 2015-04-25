@@ -29,7 +29,8 @@ $(function(){
       });
    });
 
-function fetchConnectResults(reqid){
+function fetchConnectResults(){
+	console.log("Fetching Results in fetchConnectResults")
 	$.ajax({
 			url: '/fetchResults',
 			data: {"reqId":reqid,"scantype":"CONNECT_SCAN"},
@@ -46,16 +47,17 @@ function fetchConnectResults(reqid){
 	
 function updateConnectProgress(percentage){
 		$("#connectprogressBar").show();
-		if(percentage == 100){
-			 $("#connectprogressBar").show();
+		if(percentage >= 100){
+			fetchConnectResults();
+			 // $("#connectprogressBar").show();
 		}
-	    if(percentage > 100) {
-	    	percentage = 100;
-	    }
+	    // if(percentage > 100) {
+	    // 	percentage = 100;
+	    // }
 	    if(!isNaN(percentage)){
 
 		    $('#connectprogressBar').css('width', percentage+'%');
-		    $('#connectprogressBar').html('Fetching data '+percentage+'% complete');
+		    $('#connectprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
 		}
 	}	
    function connectPoll(){
@@ -80,7 +82,7 @@ function updateConnectProgress(percentage){
         // //job is completed display on the UI
         	//remaining = data[0].count;
         	//updateConnectProgress((remaining/totalJobs)*100);
-        	fetchConnectResults(reqid)
+        	//fetchConnectResults(reqid)
         	console.log("Job completed")
         	done = true
 

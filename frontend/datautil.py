@@ -129,7 +129,7 @@ def preprocess(jsondata):
 def Test():
     reqid = "128bca28-ea3a-11e4-a9c1-bc773780be52"
     #collection = setup(CONNECT_SCAN)
-    fetchProcessedData(reqid,CONNECT_SCAN)
+    #print fetchProcessedData(reqid,CONNECT_SCAN)
     # print getCount(reqid)
     # getRawData(collection,reqid)  
     #jsondata = getRawData(collection,reqid)    
