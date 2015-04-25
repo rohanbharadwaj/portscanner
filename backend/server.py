@@ -1,6 +1,7 @@
 import uuid;
 from time import sleep
 from datetime import timedelta
+from datetime import datetime
 import requests
 import threading
 
@@ -12,6 +13,8 @@ import ipcalc;
 from pymongo import MongoClient;
 from RestAPIServer import RestAPIServer
 from ReqResObjects import *
+
+from datautil import *
 
 
 LIMIT = 1000
@@ -101,7 +104,10 @@ def registerWorker(workerIP_Port):
 
 
 # Receive request from UI and divide the work into jobs then assign them
-def requestReceiver(scanIp, startPort, endPort, scanType):
+def requestReceiver(scanIp, scanSequentially, portrange, scanType):
+    res = portrange.split('-')
+    startPort = int(res[0].strip())
+    endPort = int(res[1].strip())
     print "requestReceiver"
     reqid = str(uuid.uuid1())
     pendingList[reqid] = [];
@@ -184,11 +190,17 @@ def requestReceiver(scanIp, startPort, endPort, scanType):
                 assignWork(jobObj)
                 IPs = []
             cnt += 1
+    return json.dumps([{"reqid":reqid,"numjob":len(pendingList[reqid])}])
 
 
 def processReport(reqId, jobId, scanType, report):
+
     print "processReport: " + report
-    insertRecord(scanType, report)
+    #insertRecord(scanType, report)
+
+    client = setup()
+    insertdata(client, report, scanType)
+
     # jobObj = Job(scanType ,["127.0.0.1"], 1, 100, jobId, reqId)
     for key in pendingList:
         if (key == reqId):
@@ -275,23 +287,15 @@ if __name__ == '__main__':
     #requestReceiver("130.245.124.254", 1, 5000, TCP_FIN_SCAN);
     #requestReceiver("172.24.22.0/26", 1, 2000, IS_UP_BULK);
 
-    requestReceiver("130.245.124.254", 1, 5000, CONNECT_SCAN);
+    #processReport("123", "123", "conn", {ip: "123.32.34.45" })
+
+    #requestReceiver("130.245.124.254", 1, 11000, CONNECT_SCAN);
+
+    #print requestReceiver("130.245.124.254", 1, 3000, TCP_FIN_SCAN);
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
     #registerWorker("27.0.0.0.1",8080)
     #print pendingJobCnt;
 
-'''
-def createJob(jobid, reqid, scanIp, startPort, endPort, scanType):
-    data = {}
-    json_data =  json.dumps({})
-    data['jobid'] = jobid
-    data['reqid'] = reqid
-    data['scanIp'] = scanIp
-    data['startPort'] = startPort
-    data['endPort'] = endPort
-    data['scanType'] = scanType
-    json_data = json.dumps(data)
-    return json_data
-'''
+

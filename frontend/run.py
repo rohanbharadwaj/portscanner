@@ -3,7 +3,10 @@ from flask import render_template
 from flask import jsonify
 from flask import request,json
 from data import fetch
-from datautil import getdata
+from datautil import *
+import sys
+sys.path.append('../backend')
+from server import *
 
 app = Flask(__name__)
 
@@ -65,12 +68,17 @@ def senddata():
 @app.route('/receivedata', methods=['POST'])
 def receivedata():
     connect_input_ip = request.form['connect_input_ip']
-    port_range = request.form['port_range']
-    type_scan = request.form['optionsRadios']
+    port_range = request.form['connect_port']
+    type_scan = request.form['seqran']
     # user =  request.form['username'];
     # password = request.form['password'];
-    print connect_input_ip
-    return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan});
+    #[{"reqid": "a5da0bce-eaed-11e4-9475-000c29683c93", "numjob": 1}]
+    return requestReceiver(connect_input_ip, type_scan, port_range, CONNECT_SCAN)
+    # print connect_input_ip
+    # reqId = "128bca28-ea3a-11e4-a9c1-bc773780be52"
+    # numjobs = 11
+    # return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan,
+    #                     'reqId':reqId,'numjobs':numjobs});
 
 @app.route('/loaddata')
 def loaddata():
@@ -88,13 +96,32 @@ def submit():
 
 @app.route('/getJobStatus',methods=['POST'])
 def getJobStatus():
-    i = 0
-    i = i + 1
-    # reqid = request.args.get("reqid")
-    if(i>8):
-        return json.dumps([{'done':'true','pending':0}])
-    else:
-        return json.dumps([{'done':'false','pending':8}])  
+    reqId = request.form['reqId']
+    scantype = request.form['scantype']
+    count = getCount(reqId,scantype)
+    return json.dumps([{'reqId':reqId,'count':count}])
+
+@app.route('/getReports',methods=['POST']) 
+def getReports():
+    ip = request.form['']   
+    # i = 0
+    # if(i>8):
+    #     return json.dumps([{'name':name,'done':'true','pending':0}])
+    # else:
+    #     return json.dumps([{'name':name,'done':'false','pending':8}])
+
+
+@app.route('/fetchResults',methods=['POST','GET'])
+def fetchResults():
+    if request.method == "POST":
+        reqId = request.form['reqId']
+        scantype = request.form['scantype']
+        return fetchProcessedData(reqId,scantype)
+    if request.method == "GET":
+        res = fetchProcessedData("128bca28-ea3a-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+        print res
+        return res    
+
 
 @app.route('/connect_post',methods=['POST'])
 def connect_post():
