@@ -42,8 +42,10 @@ def getRawData(collection,reqid):
 def fetchProcessedData(reqid,scanType):
     collection = setup(scanType)
     jsondata = getRawData(collection,reqid)
+    # print "After getRawData"
     # print jsondata
-    return preprocess(jsondata)
+    return json.dumps(jsondata)
+    #return preprocess(jsondata)
 
 
 def getdata():
@@ -81,7 +83,7 @@ def merge_two_dicts(x, y):
 def preprocess(jsondata):
     numobj =  len(jsondata)
     #print jsondata[0]["report"][1][0]
-    data2 = {}
+    #data2 = {}
     data1 = []
     data = {}
     result = []
@@ -127,9 +129,13 @@ def preprocess(jsondata):
 #         print e
 
 def Test():
-    reqid = "128bca28-ea3a-11e4-a9c1-bc773780be52"
+    reqid = "2e591188-eb7b-11e4-a9c1-bc773780be52"
     #collection = setup(CONNECT_SCAN)
+<<<<<<< HEAD
+    print fetchProcessedData(reqid,CONNECT_SCAN)
+=======
     #print fetchProcessedData(reqid,CONNECT_SCAN)
+>>>>>>> e275cd418be855eed9a7c6e3702fadb14c05f6a9
     # print getCount(reqid)
     # getRawData(collection,reqid)  
     #jsondata = getRawData(collection,reqid)    

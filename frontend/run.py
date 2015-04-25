@@ -16,6 +16,8 @@ def hello_world():
 
 @app.route('/index')
 def index():
+    srvr = MyRestServer()
+    srvr.run_server()
     return render_template('index.html')
 
 @app.route('/auto')
@@ -118,7 +120,11 @@ def fetchResults():
         scantype = request.form['scantype']
         return fetchProcessedData(reqId,scantype)
     if request.method == "GET":
+<<<<<<< HEAD
+        res = fetchProcessedData("2e591188-eb7b-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+=======
         res = fetchProcessedData("128bca28-ea3a-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+>>>>>>> e275cd418be855eed9a7c6e3702fadb14c05f6a9
         print res
         return res    
 
