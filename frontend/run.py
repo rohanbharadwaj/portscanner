@@ -16,6 +16,8 @@ def hello_world():
 
 @app.route('/index')
 def index():
+    srvr = MyRestServer()
+    srvr.run_server()
     return render_template('index.html')
 
 @app.route('/auto')
@@ -111,11 +113,16 @@ def getReports():
     #     return json.dumps([{'name':name,'done':'false','pending':8}])
 
 
-@app.route('/fetchResults',methods=['POST'])
+@app.route('/fetchResults',methods=['POST','GET'])
 def fetchResults():
-    reqId = request.form['reqId']
-    scantype = request.form['scantype']
-    return fetchProcessedData(reqId,scantype)
+    if request.method == "POST":
+        reqId = request.form['reqId']
+        scantype = request.form['scantype']
+        return fetchProcessedData(reqId,scantype)
+    if request.method == "GET":
+        res = fetchProcessedData("2e591188-eb7b-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+        print res
+        return res    
 
 
 @app.route('/connect_post',methods=['POST'])

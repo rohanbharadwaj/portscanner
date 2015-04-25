@@ -3,6 +3,7 @@ $(function(){
 	var done = false;
 	var totalobj;
 	var reqid;
+	var connect_printed = false;
 
    $('#connectSubmit').click(function(){
       // alert("rohan")
@@ -29,14 +30,71 @@ $(function(){
       });
    });
 
-function fetchConnectResults(reqid){
+function fetchConnectResults(){
+	console.log("Fetching Results in fetchConnectResults")
 	$.ajax({
 			url: '/fetchResults',
 			data: {"reqId":reqid,"scantype":"CONNECT_SCAN"},
 			type: 'POST',
+			dataType: 'json',
 			success: function(response){
+			    $("#newScan").show();
+			    $("#myTable").show();
 				console.log(response);
-				$('#connect-response').append(response)
+//				a = JSON.parse(response)
+                console.log("Response Length "+response.length);
+                var res="rohan";
+                if(!connect_printed){
+                var table = document.getElementById("myTable");
+//                var header = table.createTHead();
+//                var row = header.insertRow(0);
+//                var cell = row.insertCell(0);
+//                var cell1 = row.insertCell(1);
+//                var cell2 = row.insertCell(2);
+//                var cell3 = row.insertCell(3);
+//                var cell4 = row.insertCell(4);
+//                var cell5 = row.insertCell(5);
+//                var cell6 = row.insertCell(6);
+                for(i=0;i<response.length;i++){
+//                    console.log(response[i].scanType);
+//                    console.log(response[i].jobId);
+//                    console.log(response[i].workerIP_Port);
+//                    console.log(response[i].IPs);
+                    var scanType = response[i].scanType;
+                    var jobId = response[i].jobId;
+                    var workerIP_Port = response[i].workerIP_Port;
+                    var IPs = response[i].IPs;
+                    var report = response[i].report;
+                    //var ports = response[i].ports.toString();
+                    console.log(response[i].ports);
+                    //Math.min.apply(Math, [100,13,3,6]);
+                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
+                    console.log(response[i].ports);
+                    var timestamp = response[i].timestamp;
+                    var row = table.insertRow(i);
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var cell5 = row.insertCell(4);
+                    var cell6 = row.insertCell(5);
+                    var cell7 = row.insertCell(6);
+
+                    cell4.innerHTML = scanType;
+                    cell1.innerHTML = i+1;
+                    cell5.innerHTML = workerIP_Port;
+                    cell2.innerHTML = IPs;
+                    cell6.innerHTML = report;
+                    cell7.innerHTML = ports;
+                    cell3.innerHTML = timestamp;
+
+                   //res+="<p>"+response[i].scanType+" "+response[i].jobId+" "+response[i].workerIP_Port+" "+response[i].IPs+" "+"</p>";
+                }
+                connect_printed = true;
+                }
+                //$('#connect-response').append(res)
+                //console.log(res)
+				//$('#connect-response').append(response)
 			},
 			error: function(error){
 				console.log(error);
@@ -46,16 +104,17 @@ function fetchConnectResults(reqid){
 	
 function updateConnectProgress(percentage){
 		$("#connectprogressBar").show();
-		if(percentage == 100){
-			 $("#connectprogressBar").show();
+		if(percentage >= 100){
+			fetchConnectResults();
+			 // $("#connectprogressBar").show();
 		}
-	    if(percentage > 100) {
-	    	percentage = 100;
-	    }
+	    // if(percentage > 100) {
+	    // 	percentage = 100;
+	    // }
 	    if(!isNaN(percentage)){
-
+            if(percentage >100)  percentage = 100;
 		    $('#connectprogressBar').css('width', percentage+'%');
-		    $('#connectprogressBar').html('Fetching data '+percentage+'% complete');
+		    $('#connectprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
 		}
 	}	
    function connectPoll(){
@@ -76,11 +135,15 @@ function updateConnectProgress(percentage){
              updateConnectProgress((remaining/totalobj)*100);
 
          }
+
+
          else if(data[0].count > totalobj && !done){
         // //job is completed display on the UI
         	//remaining = data[0].count;
         	//updateConnectProgress((remaining/totalJobs)*100);
-        	fetchConnectResults(reqid)
+        	//fetchConnectResults(reqid)
+        	remaining = data[0].count;
+            updateConnectProgress((remaining/totalobj)*100);
         	console.log("Job completed")
         	done = true
 
