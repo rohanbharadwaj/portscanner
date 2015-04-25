@@ -25,6 +25,30 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+<script src="static/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="static/js/bootstrap.min.js"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+    <script type="text/javascript" src="static/js/script.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#connectprogressBar").hide();
+            // $("#hide").click(function(){
+            //     $("p").hide();
+            // });
+            // $("#show").click(function(){
+            //     $("p").show();
+            // });
+        });
+        </script>
 
 </head>
 
@@ -81,12 +105,15 @@
                             <!-- /.panel-heading -->
                             <div class="panel-body">
                                 <!-- Nav tabs -->
-                                <ul class="nav nav-pills">
+                               <!--  <ul class="nav nav-pills">
                                     <li class="active"><a href="#connect_scan" data-toggle="tab">Connect Scan</a>
-                                    </li>
+                                    </li> -->
                                     <!--  <li><a href="#ipblock" data-toggle="tab">Block of IP's</a>
                                 </li> -->
-                                </ul>
+                                <!-- </ul> -->
+                                <div class="progress" style="height:22px;">
+                                    <div class="progress-bar progress-striped active" id="connectprogressBar" class="bar" style="color:black;height:22px;width:1%;background-color:green"></div>
+                                </div>
 
                                 <!-- Tab panes -->
                                 <div class="tab-content">
@@ -108,12 +135,12 @@
                                                             <label>Type of scan</label>
                                                             <div class="radio">
                                                                 <label>
-                                                                    <input type="radio" name="seqran" id="sequential" value="sequential" checked>Sequential
+                                                                    <input type="radio" name="seqran" id="sequential" value="True" checked>Sequential
                                                                 </label>
                                                             </div>
                                                             <div class="radio">
                                                                 <label>
-                                                                    <input type="radio" name="seqran" id="random" value="random">Random
+                                                                    <input type="radio" name="seqran" id="random" value="False">Random
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -147,19 +174,7 @@
     <!-- /#wrapper -->
 
     <!-- jQuery -->
-    <script src="static/js/jquery.js"></script>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="static/js/bootstrap.min.js"></script>
-
-    <!-- Menu Toggle Script -->
-    <script>
-        $("#menu-toggle").click(function(e) {
-            e.preventDefault();
-            $("#wrapper").toggleClass("toggled");
-        });
-    </script>
-    <script type="text/javascript" src="static/js/script.js"></script>
 
 
 </body>

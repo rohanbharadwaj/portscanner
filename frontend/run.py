@@ -4,6 +4,9 @@ from flask import jsonify
 from flask import request,json
 from data import fetch
 from datautil import *
+import sys
+sys.path.append('../backend')
+from server import *
 
 app = Flask(__name__)
 
@@ -69,11 +72,13 @@ def receivedata():
     type_scan = request.form['seqran']
     # user =  request.form['username'];
     # password = request.form['password'];
-    print connect_input_ip
-    reqId = "128bca28-ea3a-11e4-a9c1-bc773780be52"
-    numjobs = 11
-    return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan,
-                        'reqId':reqId,'numjobs':numjobs});
+    #[{"reqid": "a5da0bce-eaed-11e4-9475-000c29683c93", "numjob": 1}]
+    return requestReceiver(connect_input_ip, type_scan, port_range, CONNECT_SCAN)
+    # print connect_input_ip
+    # reqId = "128bca28-ea3a-11e4-a9c1-bc773780be52"
+    # numjobs = 11
+    # return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan,
+    #                     'reqId':reqId,'numjobs':numjobs});
 
 @app.route('/loaddata')
 def loaddata():
@@ -95,11 +100,16 @@ def getJobStatus():
     scantype = request.form['scantype']
     count = getCount(reqId,scantype)
     return json.dumps([{'reqId':reqId,'count':count}])
+
+@app.route('/getReports',methods=['POST']) 
+def getReports():
+    ip = request.form['']   
     # i = 0
     # if(i>8):
     #     return json.dumps([{'name':name,'done':'true','pending':0}])
     # else:
     #     return json.dumps([{'name':name,'done':'false','pending':8}])
+
 
 @app.route('/fetchResults',methods=['POST'])
 def fetchResults():

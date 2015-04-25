@@ -104,7 +104,10 @@ def registerWorker(workerIP_Port):
 
 
 # Receive request from UI and divide the work into jobs then assign them
-def requestReceiver(scanIp, startPort, endPort, scanType):
+def requestReceiver(scanIp, scanSequentially, portrange, scanType):
+    res = portrange.split('-')
+    startPort = int(res[0].strip())
+    endPort = int(res[1].strip())
     print "requestReceiver"
     reqid = str(uuid.uuid1())
     pendingList[reqid] = [];

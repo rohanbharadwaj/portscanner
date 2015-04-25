@@ -28,7 +28,8 @@ def setup(scanType):  # setsup connection and returns collection
 def getCount(reqid,scanType): # get count of documents based on reqId
     # print collection.count()
     collection = setup(scanType)
-    return collection.count()
+    #return collection.count()
+    return collection.find({'reqId':reqid}).count()
 
 def getRawData(collection,reqid):
     result = []

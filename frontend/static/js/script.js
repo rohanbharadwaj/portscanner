@@ -1,8 +1,8 @@
 $(function(){
 
-	var reqId;
 	var done = false;
 	var totalobj;
+	var reqid;
 
    $('#connectSubmit').click(function(){
       // alert("rohan")
@@ -13,10 +13,15 @@ $(function(){
          type: 'POST',
          dataType: 'json',
          success: function(response){
-            console.log(response["reqId"]);
-            reqId = response["reqId"];
-            totalobj = response["numjobs"];
-            connectPoll(reqId,totalobj);
+         	// console.log(response);
+         	// console.log(response[0]["numjob"])
+         	// console.log(response[0]["reqid"])
+            //console.log(response["reqid"]);
+            reqid = response[0]["reqid"];
+            totalobj = response[0]["numjob"];
+            connectPoll();
+            // console.log(reqid)
+            // console.log(totalobj)
          },
          error: function(error){
             console.log(error);
@@ -27,7 +32,7 @@ $(function(){
 function fetchConnectResults(reqid){
 	$.ajax({
 			url: '/fetchResults',
-			data: {"reqId":reqId,"scantype":"CONNECT_SCAN"},
+			data: {"reqId":reqid,"scantype":"CONNECT_SCAN"},
 			type: 'POST',
 			success: function(response){
 				console.log(response);
@@ -38,23 +43,43 @@ function fetchConnectResults(reqid){
 			}
 		});
 }
+	
+function updateConnectProgress(percentage){
+		$("#connectprogressBar").show();
+		if(percentage == 100){
+			 $("#connectprogressBar").show();
+		}
+	    if(percentage > 100) {
+	    	percentage = 100;
+	    }
+	    if(!isNaN(percentage)){
 
-   function connectPoll(reqid,totalJobs){
-    $.post('/getJobStatus',{"reqId":reqId,"scantype":"CONNECT_SCAN"},function(data) {
+		    $('#connectprogressBar').css('width', percentage+'%');
+		    $('#connectprogressBar').html('Fetching data '+percentage+'% complete');
+		}
+	}	
+   function connectPoll(){
+
+    $.post('/getJobStatus',{"reqId":reqid,"scantype":"CONNECT_SCAN"},function(data) {
         //console.log(reqid);  // process results here
         //console.log(data[0].done);
         // totalJobs = response[0].numjobs;
         // console.log(reqId);
+        reqid = data[0].reqId;
+         console.log(reqid);
+         console.log(totalobj);
          console.log(data[0].count);
          console.log(data[0].reqId);
-        if(data[0].count < totalobj && !done){
+        if(data[0].count <= totalobj && !done){
         // 	// Poll until the job is not ready
-        	// remaining = data[0].pending;
-         // 	updateProgress((remaining/totalJobs)*100);
+        	 remaining = data[0].count;
+             updateConnectProgress((remaining/totalobj)*100);
 
          }
-         else if(data[0].count >= totalobj && !done){
+         else if(data[0].count > totalobj && !done){
         // //job is completed display on the UI
+        	//remaining = data[0].count;
+        	//updateConnectProgress((remaining/totalJobs)*100);
         	fetchConnectResults(reqid)
         	console.log("Job completed")
         	done = true
@@ -126,7 +151,7 @@ function fetchConnectResults(reqid){
 	}
 
 	function doPoll(reqid,totalJobs){
-    $.post('/getJobStatus',function(data) {
+    $.post('/getReports',{},function(data) {
         //console.log(reqid);  // process results here
         //console.log(data[0].done);
         // totalJobs = response[0].numjobs;
