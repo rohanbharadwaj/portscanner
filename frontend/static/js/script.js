@@ -142,8 +142,11 @@ function updateConnectProgress(percentage){
         	//remaining = data[0].count;
         	//updateConnectProgress((remaining/totalJobs)*100);
         	//fetchConnectResults(reqid)
+<<<<<<< HEAD
         	remaining = data[0].count;
             updateConnectProgress((remaining/totalobj)*100);
+=======
+>>>>>>> e275cd418be855eed9a7c6e3702fadb14c05f6a9
         	console.log("Job completed")
         	done = true
 

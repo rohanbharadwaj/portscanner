@@ -120,7 +120,7 @@ def fetchResults():
         scantype = request.form['scantype']
         return fetchProcessedData(reqId,scantype)
     if request.method == "GET":
-        res = fetchProcessedData("2e591188-eb7b-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+        res = fetchProcessedData("128bca28-ea3a-11e4-a9c1-bc773780be52",CONNECT_SCAN)
         print res
         return res    
 
