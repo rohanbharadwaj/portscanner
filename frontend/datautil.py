@@ -32,25 +32,6 @@ def setup(scanType):  # setsup connection and returns collection
         collection = db.tcp_syn_scan
     return collection
 
-
-
-def getReportData(searchip, scanType):
-    a = searchip.split(".")
-    collection = setup(scanType)
-
-    querystr = '\"'+'/^'+a[0]+'\.'+a[1]+'\.'+a[2]+'\.'+a[3]+'*/.test(this.report)' + '\"'
-
-
-    print querystr
-    result = []
-    # db.collectionname.find({'files':{'$regex':'^File'}})
-    # db.connect_scan.find({ $where: "/^127\.0\.0\.1*/.test(this.report)" })
-    # collection.find({'reqId':reqid},{'_id':0}):
-    for e in collection.find({ '$where': querystr}):
-        result.append(e)
-    return result
-
-
 def getCount(reqid,scanType): # get count of documents based on reqId
     # print collection.count()
     collection = setup(scanType)
@@ -164,10 +145,26 @@ def Test():
     #jsondata = getRawData(collection,reqid)    
     # preprocess(jsondata)
 
+def getReportData(searchip, scanType):
+    a = searchip.split(".")
+    collection = setup(scanType)
+    querystr = '/^'+a[0]+'\.'+a[1]+'\.'+a[2]+'\.'+a[3]+'*/.test(this.report)'
+    #querystr = '/^127\.0\.0\.1*/.test(this.report)'
+    print querystr
+    result = []
+    print collection.find( { '$where': querystr } ).count()
+    for e in collection.find({ '$where': querystr},{'_id':0}):
+        result.append(e)
+    return result
+
+
 if __name__ == '__main__':
     #Test()
 
-    getReportData("127.0.0.1", CONNECT_SCAN)
+    print getReportData("127.0.0.1", CONNECT_SCAN)
+
+    print getReportData("130.245.124.254", CONNECT_SCAN)
+
     # getdata()
 #     client = setup()
 #     ip = []
