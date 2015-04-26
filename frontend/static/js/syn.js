@@ -3,14 +3,14 @@ $(function(){
 	var done = false;
 	var totalobj;
 	var reqid;
-	var fin_printed = false;
+	var syn_printed = false;
 
-   $('#finSubmit').click(function(){
+   $('#synSubmit').click(function(){
       // alert("rohan")
       console.log($('form'));
       $.ajax({
          url: '/receivedata',
-         data: $('form').serialize() + '&scantype=TCP_FIN_SCAN',
+         data: $('form').serialize() + '&scantype=TCP_SYN_SCAN',
          type: 'POST',
          dataType: 'json',
          success: function(response){
@@ -20,7 +20,7 @@ $(function(){
             //console.log(response["reqid"]);
             reqid = response[0]["reqid"];
             totalobj = response[0]["numjob"];
-            finPoll();
+            synPoll();
             // console.log(reqid)
             // console.log(totalobj)
          },
@@ -30,22 +30,22 @@ $(function(){
       });
    });
 
-function fetchFinResults(){
-	console.log("Fetching Results in fetchFinResults")
+function synFinResults(){
+	console.log("Fetching Results in synFinResults")
 	$.ajax({
 			url: '/fetchResults',
-			data: {"reqId":reqid,"scantype":"TCP_FIN_SCAN"},
+			data: {"reqId":reqid,"scantype":"TCP_SYN_SCAN"},
 			type: 'POST',
 			dataType: 'json',
 			success: function(response){
 			    $("#newScan").show();
-			    $("#finTable").show();
+			    $("#synTable").show();
 				console.log(response);
 //				a = JSON.parse(response)
                 console.log("Response Length "+response.length);
                 var res="rohan";
-                if(!fin_printed){
-                var table = document.getElementById("finTable");
+                if(!syn_printed){
+                var table = document.getElementById("synTable");
 //                var header = table.createTHead();
 //                var row = header.insertRow(0);
 //                var cell = row.insertCell(0);
@@ -90,7 +90,7 @@ function fetchFinResults(){
 
                    //res+="<p>"+response[i].scanType+" "+response[i].jobId+" "+response[i].workerIP_Port+" "+response[i].IPs+" "+"</p>";
                 }
-                fin_printed = true;
+                syn_printed = true;
                 }
                 //$('#connect-response').append(res)
                 //console.log(res)
@@ -102,10 +102,10 @@ function fetchFinResults(){
 		});
 }
 
-function updatefinProgress(percentage){
-		$("#finprogressBar").show();
+function updatesynProgress(percentage){
+		$("#synprogressBar").show();
 		if(percentage >= 100){
-			fetchFinResults();
+			synFinResults();
 			 // $("#connectprogressBar").show();
 		}
 	    // if(percentage > 100) {
@@ -113,13 +113,13 @@ function updatefinProgress(percentage){
 	    // }
 	    if(!isNaN(percentage)){
             if(percentage >100)  percentage = 100;
-		    $('#finprogressBar').css('width', percentage+'%');
-		    $('#finprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
+		    $('#synprogressBar').css('width', percentage+'%');
+		    $('#synprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
 		}
 	}
-   function finPoll(){
+   function synPoll(){
 
-    $.post('/getJobStatus',{"reqId":reqid,"scantype":"TCP_FIN_SCAN"},function(data) {
+    $.post('/getJobStatus',{"reqId":reqid,"scantype":"TCP_SYN_SCAN"},function(data) {
         //console.log(reqid);  // process results here
         //console.log(data[0].done);
         // totalJobs = response[0].numjobs;
@@ -132,7 +132,7 @@ function updatefinProgress(percentage){
         if(data[0].count <= totalobj && !done){
         // 	// Poll until the job is not ready
         	 remaining = data[0].count;
-             updatefinProgress((remaining/totalobj)*100);
+             updatesynProgress((remaining/totalobj)*100);
 
          }
 
@@ -143,12 +143,12 @@ function updatefinProgress(percentage){
         	//updateConnectProgress((remaining/totalJobs)*100);
         	//fetchConnectResults(reqid)
         	remaining = data[0].count;
-            updatefinProgress((remaining/totalobj)*100);
+            updatesynProgress((remaining/totalobj)*100);
         	console.log("Job completed")
         	done = true
 
          }
-        setTimeout(finPoll,5000);
+        setTimeout(synPoll,5000);
     },'json');
 	}
 

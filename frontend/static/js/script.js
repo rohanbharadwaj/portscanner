@@ -11,6 +11,7 @@ $(function(){
       $.ajax({
          url: '/receivedata',
          data: $('form').serialize()+'&scan_type=' + 'CONNECT_SCAN',
+         data: $('form').serialize() + '&scantype=CONNECT_SCAN',
          type: 'POST',
          dataType: 'json',
          success: function(response){

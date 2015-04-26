@@ -15,6 +15,11 @@
     <!-- Custom CSS -->
     <link href="static/css/simple-sidebar.css" rel="stylesheet">
     <link rel="shortcut icon" href="static/images/coffee.ico" type="image/x-icon" />
+     <script src="https://code.jquery.com/jquery-1.11.2.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.1/jquery.validate.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/validator.js"></script>
+    <script type="text/javascript" src="static/js/isalive.js"></script>
     
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -23,6 +28,31 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+     <script>
+        $(document).ready(function(){
+            $("#aliveprogressBar").hide();
+            $("#newScan").hide();
+            $("#aliveTable").hide();
+        });
+        </script>
+     <style>
+
+        table {
+        border: 0px;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        display:block;
+        height:400px;
+        width:100%;
+        }
+
+        td, th {
+          vertical-align: top;
+          border-top: 1px solid #ccc;
+          padding:10px;
+          width:100px;
+        }
+        </style>
 
 </head>
 
@@ -79,46 +109,49 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <!-- Nav tabs -->
-                            <ul class="nav nav-pills">
+                            <!-- <ul class="nav nav-pills">
                                 <li class="active"><a href="#singleip" data-toggle="tab">Single IP</a>
                                 </li>
                                 <li><a href="#ipblock" data-toggle="tab">Block of IP's</a>
                                 </li>
-                            </ul>
+                            </ul> -->
+                             <div class="progress" style="height:22px;">
+                                    <div class="progress-bar progress-striped active" id="aliveprogressBar" class="bar" style="color:black;height:22px;width:1%;background-color:green"></div>
+                                </div>
 
                             <!-- Tab panes -->
                             <div class="tab-content">
-                                <div class="tab-pane fade in active" method="get" id="singleip">
                                     <!-- <h4>Single IP</h4> -->
                                     <p>
-                                        <form id="register-form" method="get" role="form">
+                                        <form id="isup-form" role="form">
                                         <div class="form-group">
                                         <div class="col-lg-6">
                                             <label>IP Address</label>
-                                            <input name="input_ip" class="form-control input-small" placeholder="172.16.2.3">
-                                            <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
-                                            <button id="getReports" type="submit" class="btn btn-default">Scan</button>
+                                            <input name="connect_input_ip" class="form-control input-small" placeholder="172.16.2.3">
+                                            <p class="help-block">Enter IP Address (Ex:172.16.2.3 or 172.16.2.3 /24 )</p>
+                                            <button id="isup" type="button" class="btn btn-default">Scan</button>
+                                            <button type="button" onClick="window.location.reload()" id="newScan" class="btn btn-default pull-right">New scan</button>
                                          </div>   
                                         </div>
                                     </form>
                                     </p>
                                 </div>
-                                <div class="tab-pane fade" id="ipblock">
+                                <!-- <div class="tab-pane fade" id="ipblock">
                                     <!-- <h4>Profile Tab</h4> -->
-                                    <p>
-                                        <form id="register-form1" method="get" role="form">
+                                   <!--  <p>
+                                        <form id="is-upbulk" method="get" role="form">
                                         <div class="form-group">
                                         <div class="col-lg-6">
                                             <label>Block of IP Address</label>
                                             <input id="input_ipblock"  name="input_ipblock"class="form-control input-small" placeholder="172.16.2.3/24">
                                             <p class="help-block">Enter IP Address block (Ex:172.16.2.3/24)</p>
-                                            <button type="submit" class="btn btn-default">Scan</button>
+                                            <button id="isupbulk" type="button" class="btn btn-default">Scan</button>
                                          </div>   
                                         </div>
                                     </form>
                                     </p>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -126,6 +159,22 @@
                 </div>
                 </div>
             </div>
+            <div id="scrollable" class="container-fluid">
+                <div id="connect-response" class="row">
+                    <table class="table table-striped table-bordered" id="aliveTable">
+                        <caption>Scan Results</caption>
+                        <tr>
+                            <th>Job Id</th>
+                            <th>Scanned IP</th>
+                            <th>Time stamp</th>
+                            <th>Type of Scan</th>
+                            <th>Worker IP</th>
+                            <th>Open port/Banner</th>
+                            <th>Scanned Ports</th>
+                        </tr>
+                    </table>
+                    </div>
+                    </div>
         </div>
         <!-- /#page-content-wrapper -->
 
@@ -137,10 +186,7 @@
     <script src="js/additional-methods.js"></script> -->
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="https://code.jquery.com/jquery-1.11.2.js"></script>
-    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.1/jquery.validate.js"></script>
-    <script src="static/js/bootstrap.min.js"></script>
-    <script src="static/js/validator.js"></script>
+   
    <!-- Menu Toggle Script -->
  <script>
     $("#menu-toggle").click(function(e) {

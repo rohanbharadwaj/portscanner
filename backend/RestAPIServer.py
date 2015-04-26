@@ -97,9 +97,12 @@ def connect_scan(ips, ports, ret=[]):
                 elem.close()
 
             # Send something to grab the banner
-            for elem in open_socks:
-                print('Open sock: ', elem.getpeername())
-                elem.send('hi')
+            for elem in list(open_socks):
+                try:
+                    print('Open sock: ', elem.getpeername())
+                    elem.send('hi')
+                except:
+                    open_socks.remove(elem)
 
             cur_time = time.time()
             timeout = 10
