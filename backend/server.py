@@ -125,7 +125,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
 
     reqid = str(uuid.uuid1())
     pendingList[reqid] = []
-    workerCnt = 5 #getWorkerCnt()
+    workerCnt = getWorkerCnt()
     portRange = endPort - startPort + 1
     ipRange = 0
 
@@ -141,7 +141,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
     print "portRange: " + str(portRange)
     print "ipRange: " + str(ipRange)
     print "numItems: " + str(numItems)
-    workDiv = 0
+    workDiv = 1
     workLimit = 0
     itemrem=0
 
