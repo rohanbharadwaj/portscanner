@@ -72,6 +72,13 @@ def receivedata():
     connect_input_ip = request.form['connect_input_ip']
     port_range = request.form['connect_port']
     seqran = request.form['seqran']
+    scan_type = request.form['scan_type']
+    # user =  request.form['username'];
+    # password = request.form['password'];
+    #[{"reqid": "a5da0bce-eaed-11e4-9475-000c29683c93", "numjob": 1}]
+    print "Scan Type : ",str(scan_type==CONNECT_SCAN)
+    print "Scan Type : ",scan_type
+    # scanType = CONNECT_SCAN
     scantype = request.form['scantype']
     # user =  request.form['username'];
     # password = request.form['password'];

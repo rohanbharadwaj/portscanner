@@ -14,7 +14,7 @@ from pymongo import MongoClient;
 from RestAPIServer import RestAPIServer
 from ReqResObjects import *
 
-from datautil import *
+from dataBack import *
 
 
 LIMIT = 1000
@@ -25,7 +25,6 @@ assignedListLock = threading.Lock()
 
 workerId = "127.0.0.1:8080"
 prefixUrl = 'http://';
-pendingJobCnt = 0
 
 ip = 'localhost';
 port = 27017;
@@ -41,6 +40,11 @@ def insertRecord(scanType, json_data):
         record_id = records.insert_one(json_data).inserted_id
         print record_id
 
+def getPendingJobCnt():
+    pendingJobCnt =0
+    for req in pendingList:
+        pendingJobCnt= pendingJobCnt+ len(pendingList[req])
+    return pendingJobCnt
 
 # Send/Receive requests from RstAPI Server
 def sendAndReceiveObjects(url, req):
@@ -56,32 +60,35 @@ def sendAndReceiveObjects(url, req):
 
 
 # Assign a job to worker
-def assignWork(jobObj):
-    global pendingJobCnt
+def assignWork():
     print "assignWork"
     print "assignedList: " + str(assignedList)
     print "pendingList: " + str(pendingList)
-    print "pendingJobCnt: " + str(pendingJobCnt)
+    print "pendingJobCnt: " + str(getPendingJobCnt())
 
     with assignedListLock:
         for worker in assignedList:
             if (assignedList[worker] == None):
-                assignedList[worker] = [jobObj, datetime.now()]
-                # response = requests.get(url, data=job)
-                print prefixUrl + worker
-                sendAndReceiveObjects(prefixUrl + worker, jobObj)
-                print "jobid: " + jobObj.jobId + " assigned to " + worker
-                if (pendingJobCnt > 0):
-                    pendingJobCnt -= 1
-                    return
+                jobObj = getPendingWork()
+                if(jobObj):
+                    assignedList[worker] = [jobObj, datetime.now()]
+                    # response = requests.get(url, data=job)
+                    print prefixUrl + worker
+                    sendAndReceiveObjects(prefixUrl + worker, jobObj)
+                    print "jobid: " + jobObj.jobId + " assigned to " + worker
+                else:
+                    print "assignWork: no pending work"
+                #if (pendingJobCnt > 0):
+                #    pendingJobCnt -= 1
+                #    return
 
 
 # Get a pending job from queue
 def getPendingWork():
     print "getPendingWork"
-    global pendingJobCnt
+    #global pendingJobCnt
     jobObj = None
-    if (pendingJobCnt <= 0):
+    if (getPendingJobCnt() <= 0):
         print "getPendingWork: no pending work"
     else:
         for req in pendingList:
@@ -99,99 +106,9 @@ def registerWorker(workerIP_Port):
     with assignedListLock:
         assignedList[workerIP_Port] = None;
     print "new worker registered " + workerIP_Port;
-    job = getPendingWork()
-    if job: assignWork(job)
+    assignWork()
 
-'''
-# Receive request from UI and divide the work into jobs then assign them
-def requestReceiver(scanIp, scanSequentially, portrange, scanType):
-    res = portrange.split('-')
-    startPort = int(res[0].strip())
-    endPort = int(res[1].strip())
-    print "requestReceiver"
-    reqid = str(uuid.uuid1())
-    pendingList[reqid] = [];
-    range = endPort - startPort
-    global pendingJobCnt
 
-    if (scanType is TCP_FIN_SCAN or scanType is TCP_SYN_SCAN or scanType is CONNECT_SCAN):
-
-        net = ipcalc.Network(scanIp)
-        # netsize = net.size()-2
-
-        if (range > LIMIT):
-            for ip in net:
-                stPort = startPort
-                enPort = 0
-                print scanType
-                d = range / LIMIT
-                for x in xrange(d + 1):
-                    stPort = stPort
-                    if (x == d):
-                        enPort = endPort
-                    else:
-                        enPort = stPort + LIMIT
-                    jobid = str(uuid.uuid1());
-                    jobObj = Job(scanType, [scanIp],True, stPort, enPort, jobid, reqid)
-                    print str(jobObj)
-                    pendingList[reqid].append(jobObj);
-                    pendingJobCnt += 1
-                    stPort = enPort + 1
-                    assignWork(jobObj);
-                    # print "Work Pending for reqid: " + reqid +"::::"+ str(pendingList[reqid]);
-        else:
-            IPs = []
-            stPort = startPort
-            enPort = endPort
-            chkCnt = 1
-            cnt = 1
-            for ip in net:
-                print str(ip), len(IPs), net.size()
-                if (net.size() > 1):
-                    if ((len(IPs) + 1) * range < LIMIT and cnt < net.size() - 2):
-                        IPs.append(str(ip))
-                    else:
-                        jobid = str(uuid.uuid1())
-                        jobObj = Job(scanType, IPs, True ,stPort, enPort, jobid, reqid)
-                        print str(jobObj.IPs), str(jobObj.ports)
-                        pendingList[reqid].append(jobObj)
-                        pendingJobCnt += 1
-                        assignWork(jobObj)
-                        IPs = []
-                        IPs.append(str(ip))
-                    cnt += 1
-                else:
-                    jobid = str(uuid.uuid1())
-                    jobObj = Job(scanType, [scanIp], True, stPort, enPort, jobid, reqid)
-                    print str(jobObj.IPs), str(jobObj.ports)
-                    pendingList[reqid].append(jobObj)
-                    pendingJobCnt += 1
-                    assignWork(jobObj)
-
-    elif (scanType is IS_UP_BULK):
-        print "IS_UP_BULK"
-        net = ipcalc.Network(scanIp)
-        netsize = net.size() - 2
-        d = (netsize) / IP_LIMIT
-        print "size" + str(net.size()) + str(d)
-        chkCnt = 1
-        cnt = 1
-        IPs = []
-        for ip in net:
-            print str(ip), str(cnt)
-            IPs.append(str(ip))
-            if ((IP_LIMIT * chkCnt == cnt or netsize == cnt)):
-                chkCnt += 1
-                jobid = str(uuid.uuid1())
-                jobObj = Job(scanType, IPs, True, 1, 100,jobid, reqid)
-                print str(jobObj)
-                pendingList[reqid].append(jobObj)
-                pendingJobCnt += 1
-                assignWork(jobObj)
-                IPs = []
-            cnt += 1
-    return json.dumps([{"reqid":reqid,"numjob":len(pendingList[reqid])}])
-'''
 def getWorkerCnt():
     print "getWorkerCnt"
     workerCnt = 0
@@ -201,30 +118,32 @@ def getWorkerCnt():
 
 
 def requestReceiver(scanIp, scanSequentially, portrange, scanType):
-
+    print "requestReceiver ", scanType
     res = portrange.split('-')
     startPort = int(res[0].strip())
     endPort = int(res[1].strip())
-    print "requestReceiver"
 
-    global pendingJobCnt
-
-    print "requestReceiver"
     reqid = str(uuid.uuid1())
     pendingList[reqid] = []
     workerCnt = getWorkerCnt()
     portRange = endPort - startPort + 1
     ipRange = 0
-    global pendingJobCnt
+
+    if(scanType==IS_UP_BULK):
+       portRange=1
+
     if(ipcalc.Network(scanIp).size()==1): ipRange = 1
     else:  ipRange = ipcalc.Network(scanIp).size()-2
 
     numItems = ipRange * portRange
+
+    print "workerCnt: " + str(workerCnt)
     print "portRange: " + str(portRange)
     print "ipRange: " + str(ipRange)
     print "numItems: " + str(numItems)
     workDiv = 0
     workLimit = 0
+    itemrem=0
 
     if(workerCnt==0):
         workLimit = LIMIT
@@ -234,13 +153,14 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
         workLimit=workDiv
         if(workDiv>LIMIT):
             workLimit=LIMIT
-    #cnt=1
-    #ipcnt=0
 
+    print "workLimit: " + str(workLimit)
+    print "itemrem: " + str(itemrem)
 
-    if (scanType is TCP_FIN_SCAN or scanType is TCP_SYN_SCAN or scanType is CONNECT_SCAN):
+    if (scanType==TCP_FIN_SCAN or scanType==TCP_SYN_SCAN or scanType==CONNECT_SCAN):
 
         if(numItems > workerCnt):
+            itemCnt = 0 #count of total items
             jobItemCnt=0
             jobItem=[]
             for ip in ipcalc.Network(scanIp):
@@ -249,46 +169,75 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                     if((jobItemCnt+portRange)<=workLimit and (rangeCnt+portRange)<=portRange):
 
                         jobItem.append([str(ip),startPort,endPort])
+                        itemCnt = itemCnt + portRange
                         jobItemCnt=jobItemCnt+portRange
                         rangeCnt=rangeCnt+portRange
-                        print "jobItem: "+ str(ip) + ":"+str(startPort)+"->"+str(endPort)
+                        #print "jobItem: "+ str(ip) + ":"+str(startPort)+"->"+str(endPort)
+                        print "jobItem"+str(jobItem)
                         #elif(jobItemCnt==workLimit):
                         #make job of it directly and move to next job
                     else:
                         if((rangeCnt+(workLimit-jobItemCnt))<=portRange):
                             jobItem.append([str(ip),rangeCnt+1,rangeCnt+(workLimit-jobItemCnt)])
+                            itemCnt = itemCnt + (workLimit-jobItemCnt)
                             rangeCnt=rangeCnt+(workLimit-jobItemCnt)
                             jobItemCnt=jobItemCnt+(workLimit-jobItemCnt)
 
-                            print "jobItem: "+ str(ip) + ":"+str(rangeCnt+1)+"->"+str(rangeCnt+(workLimit-jobItemCnt))
-                            jobid = str(uuid.uuid1())
-                            jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
-                            pendingList[reqid].append(jobObj)
-                            pendingJobCnt += 1
-                            assignWork(jobObj);
-                            print "jobItemCnt: " +str(jobItemCnt)
+                            #print "jobItem: "+ str(ip) + ":"+str(rangeCnt+1)+"->"+str(rangeCnt+(workLimit-jobItemCnt))
+                            #jobid = str(uuid.uuid1())
+
+
+                            #jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
+                            #pendingList[reqid].append(jobObj)
+
+                            #pendingJobCnt += 1
+                            #job = getPendingWork()
+                            #if(job): assignWork(job);
+
+                            #print "jobItemCnt: " +str(jobItemCnt)
+                            print "jobItem"+str(jobItem)
                             print "pendingList[reqid]" + str(pendingList[reqid])
 
-                            print "jobItem"+str(jobItem)
                             #make job with
-                            jobItem=[]
-                            jobItemCnt=0
+                            #jobItem=[]
+                            #jobItemCnt=0
                         else:
                             jobItem.append([str(ip),rangeCnt+1,rangeCnt+(portRange-rangeCnt)])
+                            itemCnt = itemCnt + (portRange-rangeCnt)
                             rangeCnt=rangeCnt+(portRange-rangeCnt)
                             jobItemCnt=jobItemCnt+(portRange-rangeCnt)
-                            print "jobItem: "+ str(ip) + ":"+str(rangeCnt+1)+"->"+str(rangeCnt+(portRange-rangeCnt))
-                            jobid = str(uuid.uuid1())
-                            jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
-                            pendingList[reqid].append(jobObj)
-                            pendingJobCnt += 1
-                            assignWork(jobObj);
-                            print "jobItemCnt: " +str(jobItemCnt)
-                            print "pendingList[reqid]" + str(pendingList[reqid])
-                            print "jobItem"+str(jobItem)
+                            #print "jobItem: "+ str(ip) + ":"+str(rangeCnt+1)+"->"+str(rangeCnt+(portRange-rangeCnt))
+                            #jobid = str(uuid.uuid1())
+                            #jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
+                            #pendingList[reqid].append(jobObj)
+                            #pendingJobCnt += 1
+                            #job = getPendingWork()
+                            #if(job): assignWork(job);
 
-                        #jobItem.append([str(ip),startPort+(workLimit-jobItemCnt)+1,endPort])
-                        #print "jobItem: "+ str(ip) + ":"+str(startPort)+"->"+str(endPort)
+                            #print "jobItemCnt: " +str(jobItemCnt)
+                            print "jobItem"+str(jobItem)
+                            print "pendingList[reqid]" + str(pendingList[reqid])
+
+                    if(jobItemCnt==workLimit or itemCnt==numItems):
+                        print "jobItemCnt==workLimit111111111"
+                        jobid = str(uuid.uuid1())
+                        jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
+                        pendingList[reqid].append(jobObj)
+                        jobItem=[]
+                        jobItemCnt=0
+                    elif(jobItemCnt>workLimit):
+                        print "error:::::::::::jobItemCnt>workLimit"
+                # if(jobItemCnt==workLimit or itemCnt==numItems):
+                #     print "jobItemCnt==workLimit2222222222222"
+                #     jobid = str(uuid.uuid1())
+                #     jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
+                #     pendingList[reqid].append(jobObj)
+                #     jobItem=[]
+                #     jobItemCnt=0
+                # elif(jobItemCnt>workLimit):
+                #     print "error:::::::::::jobItemCnt>workLimit"
+                #         #jobItem.append([str(ip),startPort+(workLimit-jobItemCnt)+1,endPort])
+                #         #print "jobItem: "+ str(ip) + ":"+str(startPort)+"->"+str(endPort)
         else:
             jobItem=[]
             jobItemCnt=0
@@ -296,28 +245,31 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                 for port in range(startPort,endPort+1):
                     jobItemCnt +=1
                     #jobItem.append([str(ip),port,port])
-                    print "jobItem: "+ str(ip) + ":"+str(port)+"->"+str(port)
+                    #print "jobItem: "+ str(ip) + ":"+str(port)+"->"+str(port)
                     jobid = str(uuid.uuid1())
                     jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
                     pendingList[reqid].append(jobObj)
-                    pendingJobCnt += 1
-                    assignWork(jobObj);
+                    #pendingJobCnt += 1
+                    #job = getPendingWork()
+                    #if(job): assignWork(job);
+
                     print "jobItem"+str(jobItem)
                     print "pendingList[reqid]" + str(pendingList[reqid])
 
-    elif (scanType is IS_UP_BULK):
+    elif (scanType ==IS_UP_BULK):
         print "IS_UP_BULK"
 
         net = ipcalc.Network(scanIp)
         netsize = ipRange
 
-        d = (netsize) / IP_LIMIT
+        d = (netsize) / workLimit
         print "size" + str(net.size()) + str(d)
         chkCnt = 1
         cnt = 0
         IPPorts = []
         for ip in net:
             print str(ip), str(cnt)
+            cnt += 1
             IPPorts.append([str(ip),None,None])
             if ((workLimit * chkCnt == cnt or netsize == cnt)):
                 chkCnt += 1
@@ -325,15 +277,15 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                 jobObj = Job(scanType, IPPorts, scanSequentially, jobid, reqid)
                 print str(jobObj)
                 pendingList[reqid].append(jobObj)
-                pendingJobCnt += 1
-                assignWork(jobObj)
+                #pendingJobCnt += 1
                 IPPorts = []
-            cnt += 1
+            #cnt += 1
 
-    return json.dumps([{"reqid":reqid,"numjob":len(pendingList[reqid])}])
-
-
-
+    response = json.dumps([{"reqid":reqid,"numjob":len(pendingList[reqid])}])
+    for jobitem in pendingList[reqid]:
+        assignWork()
+    print response
+    return response
 
 def processReport(reqId, jobId, scanType, report):
 
@@ -366,12 +318,7 @@ def receiveJobReport(res):
             print "jobid: " + jobId + "done by workerId: " + workerId;
 
     processReport(reqId, jobId, scanType, jsonpickle.encode(res))
-    job = getPendingWork()
-    print job
-    if (job):
-        assignWork(job)
-    else:
-        print "No jobs to do"
+    assignWork()
     print "receiveJobReport2: assignedList" + str(assignedList)
     print "receiveJobReport2: pendingList" + str(pendingList)
     return
@@ -397,7 +344,7 @@ class MyRestServer(RestAPIServer):
         threading.Thread(target=self.reaper).start()
 
     def reaper(self):
-        global pendingJobCnt, HEARTBEATS_SKIPPED_BEFORE_REAPING, TIME_IN_SEC_BETWEEN_HEARTBEATS
+        global  HEARTBEATS_SKIPPED_BEFORE_REAPING, TIME_IN_SEC_BETWEEN_HEARTBEATS
         while (True):
             with assignedListLock:
                 for workerID in assignedList:
@@ -406,7 +353,7 @@ class MyRestServer(RestAPIServer):
                         job, lastresponsetime = assignedList.pop(workerID)
                         print 'Removed unresponsive worker {0}'.format(workerID)
                         pendingList[job.reqId].append(job)
-                        pendingJobCnt += 1
+                        #pendingJobCnt += 1
                         print 'Added job[{0}] back to pending list of req[{1}]'.format(jsonpickle.encode(job),
                                                                                        jsonpickle.encode(
                                                                                            pendingList[job.reqId]))
@@ -427,19 +374,20 @@ if __name__ == '__main__':
 
     #requestReceiver("172.24.22.0/26", 1, 1200, TCP_FIN_SCAN);
     #requestReceiver("130.245.124.254", 1, 5000, TCP_FIN_SCAN);
-    #requestReceiver("172.24.22.0/26", 1, 2000, IS_UP_BULK);
+    requestReceiver("172.24.22.0/26", True, "1-2000", IS_UP_BULK);
 
     #processReport("123", "123", "conn", {ip: "123.32.34.45" })
 
-    #requestReceiver("130.245.124.254", 1, 11000, CONNECT_SCAN);
+    #requestReceiver("130.245.124.254", 1, 1000, CONNECT_SCAN);
 
     #print requestReceiver("130.245.124.254", 1, 3000, TCP_FIN_SCAN);
 
-    requestReceiver("130.245.124.254", True, "1-3200", TCP_FIN_SCAN)
+
+    #requestReceiver("172.16.42.0/30", True, "1-100", TCP_FIN_SCAN)
+
+    #requestReceiver("130.245.124.254/26", True, "1-100", TCP_FIN_SCAN)
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
     #registerWorker("27.0.0.0.1",8080)
     #print pendingJobCnt;
-
-
