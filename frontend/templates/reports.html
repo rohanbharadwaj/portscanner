@@ -20,24 +20,36 @@
     <link rel="shortcut icon" href="static/images/coffee.ico" type="image/x-icon" />
         <script src="static/js/jquery.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="static/js/script.js"></script>
+    <script type="text/javascript" src="static/js/reports.js"></script>
 
+        <style>
 
+        table {
+        border: 0px;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        display:block;
+        height:400px;
+        width:100%;
+        }
 
-    <script type="text/javascript">
-    function queryParams() {
-        return {
-            type: 'owner',
-            sort: 'updated',
-            direction: 'desc',
-            per_page: 100,
-            page: 1
-        };
+            td, th {
+      vertical-align: top;
+      border-top: 1px solid #ccc;
+      padding:10px;
+      width:100px;
     }
-    function fetchReport(){
-        alert(document.getElementById("input_ip").value());
-    }
-</script>
+        </style>
+        <script>
+        $(document).ready(function(){
+            $("#reposrtsprogressBar").hide();
+            $("#newScan").hide();
+            $("#myTable").hide();
+        });
+        </script>
+
+
+   
     <!-- Latest compiled and minified CSS -->
 <script type="text/javascript" src="static/js/jquery.js"></script>
 
@@ -110,32 +122,42 @@
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <div class="row">
+                     <div class="row">
+                <div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Reports
+                        </div>
+                        <!-- /.panel-heading -->
+             <div class="panel-body">           
+            <div class="container-fluid">
+                <div class="row">
                     <div class="col-lg-10">
-                        Reports
+                        <div class="progress" style="height:22px;">
+                            <div class="progress-bar progress-striped active" id="reposrtsprogressBar" class="bar" style="height:22px;width:1%;background-color:green"></div>
+                        </div>
+                    </div></div></div>
+                        
                                <form id="get_reports_form" role="form">
                                         <div class="form-group">
                                         <div class="col-lg-6">
                                             <label>IP Address</label>
                                             <input name="input_ip" id="input_ip" class="form-control input-small" placeholder="172.16.2.3">
                                             <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
-                                            <button id="getReports" type="button" class="btn btn-default">Scan</button>
+                                            <button id="getResults" type="button" class="btn btn-default">Search</button>
                                          </div>   
                                         </div>
+                                     </div>   
                         <div id="reports"></div>
+
 
                     </div>
                 </div>
             </div>
         </div>
         <!-- /#page-content-wrapper -->
-        <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-10">
-        <div class="progress" style="height:22px;">
-            <div class="progress-bar progress-striped active" id="progressBar" class="bar" style="height:22px;width:1%;background-color:green"></div>
-        </div>
-    </div></div></div>
-    <div id="results_id" class="container-fluid">
+  
+<!--     <div id="results_id" class="container-fluid">
                 <div class="row">
                     <div class="col-lg-10">
                      <div id="results">
@@ -156,7 +178,7 @@
                     </thead>
                 </table>
                      </div>       
-    </div></div></div>     
+    </div></div></div>  -->    
     <div id="test"></div>               
 
     </div>

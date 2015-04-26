@@ -10,7 +10,8 @@ $(function(){
       console.log($('form'));
       $.ajax({
          url: '/receivedata',
-         data: $('form').serialize(),
+         data: $('form').serialize()+'&scan_type=' + 'CONNECT_SCAN',
+         data: $('form').serialize() + '&scantype=CONNECT_SCAN',
          type: 'POST',
          dataType: 'json',
          success: function(response){
@@ -55,6 +56,14 @@ function fetchConnectResults(){
 //                var cell4 = row.insertCell(4);
 //                var cell5 = row.insertCell(5);
 //                var cell6 = row.insertCell(6);
+//                cell.innerHTML = "<b>Job Id</b>";
+//                cell1.innerHTML = "<b>Scanned IP</b>";
+//                cell2.innerHTML = "<b>Time stamp</b>";
+//                cell3.innerHTML = "<b>Type of Scan</b>";
+//                cell4.innerHTML = "<b>Worker IP</b>";
+//                cell5.innerHTML = "<b>Open port/Banner</b>";
+//                cell6.innerHTML = "<b>Scanned Ports</b>";
+
                 for(i=0;i<response.length;i++){
 //                    console.log(response[i].scanType);
 //                    console.log(response[i].jobId);
@@ -63,15 +72,16 @@ function fetchConnectResults(){
                     var scanType = response[i].scanType;
                     var jobId = response[i].jobId;
                     var workerIP_Port = response[i].workerIP_Port;
-                    var IPs = response[i].IPs;
+                    var IPs = response[i].IPPorts;
                     var report = response[i].report;
                     //var ports = response[i].ports.toString();
                     console.log(response[i].ports);
                     //Math.min.apply(Math, [100,13,3,6]);
-                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
+                    //var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
+                    var ports = response[i].IPPorts;
                     console.log(response[i].ports);
                     var timestamp = response[i].timestamp;
-                    var row = table.insertRow(i);
+                    var row = table.insertRow(-1);
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);

@@ -29,25 +29,28 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="static/js/bootstrap.min.js"></script>
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.1/jquery.validate.js"></script>
 
-    <style>
+    <script type="text/javascript" src="static/js/validator.js"></script>
 
-    table {
-    border: 0px;
-    overflow-y: scroll;
-    overflow-x: scroll;
-    display:block;
-    height:400px;
-    width:100%;
+        <style>
+
+        table {
+        border: 0px;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        display:block;
+        height:400px;
+        width:100%;
+        }
+
+            td, th {
+      vertical-align: top;
+      border-top: 1px solid #ccc;
+      padding:10px;
+      width:100px;
     }
-
-        td, th {
-  vertical-align: top;
-  border-top: 1px solid #ccc;
-  padding:10px;
-  width:100px;
-}
-    </style>
+        </style>
 
     <!-- Menu Toggle Script -->
     <script>
@@ -62,12 +65,6 @@
             $("#connectprogressBar").hide();
             $("#newScan").hide();
             $("#myTable").hide();
-            // $("#hide").click(function(){
-            //     $("p").hide();
-            // });
-            // $("#show").click(function(){
-            //     $("p").show();
-            // });
         });
         </script>
 
@@ -194,6 +191,7 @@
                             <th>Open port/Banner</th>
                             <th>Scanned Ports</th>
                         </tr>
+
                     </table>
                     </div>
                     </div>
