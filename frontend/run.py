@@ -71,11 +71,12 @@ def senddata():
 def receivedata():
     connect_input_ip = request.form['connect_input_ip']
     port_range = request.form['connect_port']
-    type_scan = request.form['seqran']
+    seqran = request.form['seqran']
+    scantype = request.form['scantype']
     # user =  request.form['username'];
     # password = request.form['password'];
     #[{"reqid": "a5da0bce-eaed-11e4-9475-000c29683c93", "numjob": 1}]
-    return requestReceiver(connect_input_ip, type_scan, port_range, CONNECT_SCAN)
+    return requestReceiver(connect_input_ip, seqran, port_range, scantype)
     # print connect_input_ip
     # reqId = "128bca28-ea3a-11e4-a9c1-bc773780be52"
     # numjobs = 11

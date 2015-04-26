@@ -7,7 +7,7 @@ ip = 'localhost'
 port = 27017
 
 DB = 'secaffe'
-IS_UP = "IS_UP"
+IS_UP_BULK = "IS_UP_BULK"
 TCP_SYN_SCAN = "TCP_SYN_SCAN"
 CONNECT_SCAN = "CONNECT_SCAN"
 TCP_FIN_SCAN = "TCP_FIN_SCAN"
@@ -17,7 +17,7 @@ def setup(scanType):  # setsup connection and returns collection
     db = client.secaffe
     if(scanType==CONNECT_SCAN):
         collection = db.connect_scan
-    elif(scanType==IS_UP):
+    elif(scanType==IS_UP_BULK):
         collection = db.is_up_scan
     elif(scanType==TCP_FIN_SCAN):
         collection = db.tcp_fin_scan

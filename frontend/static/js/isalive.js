@@ -1,26 +1,27 @@
 $(function(){
 
-	var done = false;
-	var totalobj;
-	var reqid;
-	var fin_printed = false;
+    var done = false;
+    var totalobj;
+    var reqid;
+    var alive_printed = false;
 
-   $('#finSubmit').click(function(){
+   $('#isup,#isupbulk').click(function(){
       // alert("rohan")
       console.log($('form'));
       $.ajax({
          url: '/receivedata',
-         data: $('form').serialize() + '&scantype=TCP_FIN_SCAN',
+         // connect_input_ip=127.8.8.8&connect_port=1-1000&seqran=False&scantype=CONNECT_SCAN
+         data: $('form').serialize() + '&connect_port=1-100&seqran=False&scantype=IS_UP_BULK',
          type: 'POST',
          dataType: 'json',
          success: function(response){
-         	// console.log(response);
-         	// console.log(response[0]["numjob"])
-         	// console.log(response[0]["reqid"])
+            // console.log(response);
+            // console.log(response[0]["numjob"])
+            // console.log(response[0]["reqid"])
             //console.log(response["reqid"]);
             reqid = response[0]["reqid"];
             totalobj = response[0]["numjob"];
-            finPoll();
+            upPoll();
             // console.log(reqid)
             // console.log(totalobj)
          },
@@ -30,22 +31,22 @@ $(function(){
       });
    });
 
-function fetchFinResults(){
-	console.log("Fetching Results in fetchFinResults")
-	$.ajax({
-			url: '/fetchResults',
-			data: {"reqId":reqid,"scantype":"TCP_FIN_SCAN"},
-			type: 'POST',
-			dataType: 'json',
-			success: function(response){
-			    $("#newScan").show();
-			    $("#finTable").show();
-				console.log(response);
-//				a = JSON.parse(response)
+function fetchAliveResults(){
+    console.log("Fetching Results in IS Up Results")
+    $.ajax({
+            url: '/fetchResults',
+            data: {"reqId":reqid,"scantype":"IS_UP_BULK"},
+            type: 'POST',
+            dataType: 'json',
+            success: function(response){
+                $("#newScan").show();
+                $("#aliveTable").show();
+                console.log(response);
+//              a = JSON.parse(response)
                 console.log("Response Length "+response.length);
                 var res="rohan";
-                if(!fin_printed){
-                var table = document.getElementById("finTable");
+                if(!alive_printed){
+                var table = document.getElementById("aliveTable");
 //                var header = table.createTHead();
 //                var row = header.insertRow(0);
 //                var cell = row.insertCell(0);
@@ -90,36 +91,36 @@ function fetchFinResults(){
 
                    //res+="<p>"+response[i].scanType+" "+response[i].jobId+" "+response[i].workerIP_Port+" "+response[i].IPs+" "+"</p>";
                 }
-                fin_printed = true;
+                alive_printed = true;
                 }
                 //$('#connect-response').append(res)
                 //console.log(res)
-				//$('#connect-response').append(response)
-			},
-			error: function(error){
-				console.log(error);
-			}
-		});
+                //$('#connect-response').append(response)
+            },
+            error: function(error){
+                console.log(error);
+            }
+        });
 }
 
-function updatefinProgress(percentage){
-		$("#finprogressBar").show();
-		if(percentage >= 100){
-			fetchFinResults();
-			 // $("#connectprogressBar").show();
-		}
-	    // if(percentage > 100) {
-	    // 	percentage = 100;
-	    // }
-	    if(!isNaN(percentage)){
+function updatealiveProgress(percentage){
+        $("#aliveprogressBar").show();
+        if(percentage >= 100){
+            synFinResults();
+             // $("#connectprogressBar").show();
+        }
+        // if(percentage > 100) {
+        //  percentage = 100;
+        // }
+        if(!isNaN(percentage)){
             if(percentage >100)  percentage = 100;
-		    $('#finprogressBar').css('width', percentage+'%');
-		    $('#finprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
-		}
-	}
-   function finPoll(){
+            $('#aliveprogressBar').css('width', percentage+'%');
+            $('#aliveprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
+        }
+    }
+   function upPoll(){
 
-    $.post('/getJobStatus',{"reqId":reqid,"scantype":"TCP_FIN_SCAN"},function(data) {
+    $.post('/getJobStatus',{"reqId":reqid,"scantype":"IS_UP_BULK"},function(data) {
         //console.log(reqid);  // process results here
         //console.log(data[0].done);
         // totalJobs = response[0].numjobs;
@@ -130,26 +131,26 @@ function updatefinProgress(percentage){
          console.log(data[0].count);
          console.log(data[0].reqId);
         if(data[0].count <= totalobj && !done){
-        // 	// Poll until the job is not ready
-        	 remaining = data[0].count;
-             updatefinProgress((remaining/totalobj)*100);
+        //  // Poll until the job is not ready
+             remaining = data[0].count;
+             updatealiveProgress((remaining/totalobj)*100);
 
          }
 
 
          else if(data[0].count > totalobj && !done){
         // //job is completed display on the UI
-        	//remaining = data[0].count;
-        	//updateConnectProgress((remaining/totalJobs)*100);
-        	//fetchConnectResults(reqid)
-        	remaining = data[0].count;
-            updatefinProgress((remaining/totalobj)*100);
-        	console.log("Job completed")
-        	done = true
+            //remaining = data[0].count;
+            //updateConnectProgress((remaining/totalJobs)*100);
+            //fetchConnectResults(reqid)
+            remaining = data[0].count;
+            updatealiveProgress((remaining/totalobj)*100);
+            console.log("Job completed")
+            done = true
 
          }
-        setTimeout(finPoll,5000);
+        setTimeout(upPoll,5000);
     },'json');
-	}
+    }
 
 });
