@@ -93,16 +93,13 @@ def connect_scan(ips, ports, ret=[]):
 
             # Close any sockets with no response
             for elem in sock:
-                print('Unresponsive sock: ', elem.getpeername())
+                #print('Unresponsive sock: ', elem.getpeername())
                 elem.close()
 
             # Send something to grab the banner
-            for elem in list(open_socks):
-                try:
-                    print('Open sock: ', elem.getpeername())
-                    elem.send('hi')
-                except:
-                    open_socks.remove(elem)
+            for elem in open_socks:
+                print('Open sock: ', elem.getpeername())
+                elem.send('hi')
 
             cur_time = time.time()
             timeout = 10
@@ -156,7 +153,7 @@ def tcpFINScan(ips, ports, ret=[]):
             for ip in upIPs:
                 src_port = RandShort()  # Getting a random port as source port
                 p = IP(dst=ip) / TCP(sport=src_port, dport=ports, flags='F')  # Forging SYN packet
-                resp, unresp = sr(p, timeout=1)  # Sending packet
+                resp, unresp = sr(p, timeout=2)  # Sending packet
                 active_ports = []
                 inactive_ports = []
 
@@ -171,8 +168,8 @@ def tcpFINScan(ips, ports, ret=[]):
                         "%TCP.dport%"), active_ports))
                 sys.stdout = oldstdout
 
-                sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
-                for pop in active_ports: print "%d open" % pop
+                #sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
+                for pop in active_ports: print "%s open" % pop
                 print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
                 ret.append([ip, active_ports])
@@ -214,8 +211,8 @@ def tcpSYNScan(ips, ports, ret=[]):
                         "%TCP.dport%"), inactive_ports))
                 sys.stdout = oldstdout
 
-                sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
-                for pop in active_ports: print "%d open" % pop
+                #sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
+                for pop in active_ports: print "%s open" % pop
                 print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
                 ret.append([ip, active_ports])
