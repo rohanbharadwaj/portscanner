@@ -104,6 +104,7 @@ def connect_scan(ips, ports, ret=[]):
                     elem.send('hi')
                 except:
                     open_socks.remove(elem)
+                    elem.close()
 
             cur_time = time.time()
             timeout = 10
