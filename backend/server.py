@@ -223,14 +223,20 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
     print "portRange: " + str(portRange)
     print "ipRange: " + str(ipRange)
     print "numItems: " + str(numItems)
-    workDiv = numItems/workerCnt
-    itemrem = numItems%workerCnt
+    workDiv = 0
+    workLimit = 0
+
+    if(workerCnt==0):
+        workLimit = LIMIT
+    else:
+        workDiv = numItems/workerCnt
+        itemrem = numItems%workerCnt
+        workLimit=workDiv
+        if(workDiv>LIMIT):
+            workLimit=LIMIT
     #cnt=1
     #ipcnt=0
 
-    workLimit=workDiv
-    if(workDiv>LIMIT):
-        workLimit=LIMIT
 
     if (scanType is TCP_FIN_SCAN or scanType is TCP_SYN_SCAN or scanType is CONNECT_SCAN):
 
@@ -289,8 +295,11 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                     jobItemCnt +=1
                     #jobItem.append([str(ip),port,port])
                     print "jobItem: "+ str(ip) + ":"+str(port)+"->"+str(port)
-                    pendingList[reqid].append([str(ip),port,port])
+                    jobid = str(uuid.uuid1())
+                    jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
+                    pendingList[reqid].append(jobObj)
                     pendingJobCnt += 1
+                    print "jobItem"+jobItem
                     print "pendingList[reqid]" + str(pendingList[reqid])
 
     elif (scanType is IS_UP_BULK):
