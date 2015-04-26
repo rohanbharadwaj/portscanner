@@ -17,6 +17,7 @@ import traceback
 
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)  # Disable the annoying No Route found warning !
 from scapy.all import *
+from select import select
 
 # CONSTANTS
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -93,7 +94,7 @@ def connect_scan(ips, ports, ret=[]):
 
             # Close any sockets with no response
             for elem in sock:
-                print('Unresponsive sock: ', elem.getpeername())
+                #print('Unresponsive sock: ', elem.getpeername())
                 elem.close()
 
             # Send something to grab the banner
@@ -134,7 +135,7 @@ def connect_scan(ips, ports, ret=[]):
                 port_banners.append([remote[1], "No Banner"])
                 elem.close()
 
-        ret.append([ip, port_banners])
+        if port_banners and len(port_banners) > 0 : ret.append([ip, port_banners])
 
         print 'IP-Banners: ', ret
     except:
@@ -156,7 +157,7 @@ def tcpFINScan(ips, ports, ret=[]):
             for ip in upIPs:
                 src_port = RandShort()  # Getting a random port as source port
                 p = IP(dst=ip) / TCP(sport=src_port, dport=ports, flags='F')  # Forging SYN packet
-                resp, unresp = sr(p, timeout=1)  # Sending packet
+                resp, unresp = sr(p, timeout=2)  # Sending packet
                 active_ports = []
                 inactive_ports = []
 
@@ -171,11 +172,12 @@ def tcpFINScan(ips, ports, ret=[]):
                         "%TCP.dport%"), active_ports))
                 sys.stdout = oldstdout
 
-                sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
-                for pop in active_ports: print "%d open" % pop
+                #sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
+                for pop in active_ports: print "%s open" % pop
                 print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
-                ret.append([ip, active_ports])
+
+                if active_ports and len(active_ports) > 0 : ret.append([ip, active_ports])
 
             #print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
     except:
@@ -214,11 +216,11 @@ def tcpSYNScan(ips, ports, ret=[]):
                         "%TCP.dport%"), inactive_ports))
                 sys.stdout = oldstdout
 
-                sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
-                for pop in active_ports: print "%d open" % pop
+                #sr(IP(dst=ip) / TCP(sport=src_port, dport=active_ports, flags='RA'), timeout=1)
+                for pop in active_ports: print "%s open" % pop
                 print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
-                ret.append([ip, active_ports])
+                if active_ports and len(active_ports) > 0 : ret.append([ip, active_ports])
 
         print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
 
@@ -344,11 +346,24 @@ class CustomRestScanServer(RestAPIServer):
 
     def threadFns(self, fn, job, res):
 
+        # PRE-PROCESS CHUNKING OF LARGE PORT-RANGES
+        chunkedIPPorts = []
+        for ip, pstart, pend in job.IPPorts:
+            if pstart and pend and pstart <= pend:
+                ps, pe = pstart, pend if pend < pstart + MAX_CHUNK_SZ else pstart + MAX_CHUNK_SZ
+                while pe <= pend and ps < pe:
+                    chunkedIPPorts.append((ip, ps, pe))
+                    ps = pe + 1
+                    pe = pend if pend < pe + MAX_CHUNK_SZ else pe + MAX_CHUNK_SZ
+            else:
+                 chunkedIPPorts.append((ip, pstart, pend))
+
+
         processed = 0
-        while processed < len(job.IPPorts):
+        while processed < len(chunkedIPPorts):
             threads = []
             numThreads = 0
-            for ip, pstart, pend in list(job.IPPorts[processed:]):
+            for ip, pstart, pend in list(chunkedIPPorts[processed:]):
                 portRange = None
                 args = None
                 if pstart and pend and pstart <= pend:
@@ -450,7 +465,7 @@ if __name__ == "__main__":
         sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
     # END OF EXAMPLE
 
-    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
+    #sendAndReceiveObjects(URL, Job(TCP_FIN_SCAN, [("172.24.20.24", 1, 1024)]))
 
     # START SENDING HEARTBEATS TO MASTER SERVER
     threading.Thread(target=startSendingHeartBeats()).start()
