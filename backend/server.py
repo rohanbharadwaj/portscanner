@@ -269,7 +269,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             print "jobItemCnt: " +str(jobItemCnt)
                             print "pendingList[reqid]" + str(pendingList[reqid])
 
-                            print "jobItem"+jobItem
+                            print "jobItem"+str(jobItem)
                             #make job with
                             jobItem=[]
                             jobItemCnt=0
@@ -285,7 +285,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             assignWork(jobObj);
                             print "jobItemCnt: " +str(jobItemCnt)
                             print "pendingList[reqid]" + str(pendingList[reqid])
-                            print "jobItem"+jobItem
+                            print "jobItem"+str(jobItem)
 
                         #jobItem.append([str(ip),startPort+(workLimit-jobItemCnt)+1,endPort])
                         #print "jobItem: "+ str(ip) + ":"+str(startPort)+"->"+str(endPort)
@@ -302,7 +302,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                     pendingList[reqid].append(jobObj)
                     pendingJobCnt += 1
                     assignWork(jobObj);
-                    print "jobItem"+jobItem
+                    print "jobItem"+str(jobItem)
                     print "pendingList[reqid]" + str(pendingList[reqid])
 
     elif (scanType is IS_UP_BULK):
