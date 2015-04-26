@@ -17,6 +17,7 @@ import traceback
 
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)  # Disable the annoying No Route found warning !
 from scapy.all import *
+from select import select
 
 # CONSTANTS
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -134,7 +135,7 @@ def connect_scan(ips, ports, ret=[]):
                 port_banners.append([remote[1], "No Banner"])
                 elem.close()
 
-        ret.append([ip, port_banners])
+        if port_banners and len(port_banners) > 0 : ret.append([ip, port_banners])
 
         print 'IP-Banners: ', ret
     except:
@@ -175,7 +176,8 @@ def tcpFINScan(ips, ports, ret=[]):
                 for pop in active_ports: print "%d open" % pop
                 print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
-                ret.append([ip, active_ports])
+
+                if active_ports and len(active_ports) > 0 : ret.append([ip, active_ports])
 
             #print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
     except:
@@ -218,7 +220,7 @@ def tcpSYNScan(ips, ports, ret=[]):
                 for pop in active_ports: print "%d open" % pop
                 print "%d closed ports in %d total port scanned" % (len(inactive_ports), len(ports))
 
-                ret.append([ip, active_ports])
+                if active_ports and len(active_ports) > 0 : ret.append([ip, active_ports])
 
         print "Down host(s) %s are: " % list(set(ips).difference(set(upIPs)))
 
