@@ -346,12 +346,15 @@ class CustomRestScanServer(RestAPIServer):
             numThreads = 0
             for ip, pstart, pend in list(job.IPPorts[processed:]):
                 portRange = None
+                args = None
                 if pstart and pend and pstart <= pend:
-                    portRange = [list(range(pstart, pend))]
+                    portRange = list(range(pstart, pend))
+                    args = tuple([[str(ip)], portRange, res.report])
                     print 'Processing {0}:{1}'.format(ip, (pstart, pend))
                 else:
+                    args = tuple([[str(ip)], res.report])
                     print 'Processing {0}'.format(ip)
-                thread = threading.Thread(target=fn, args=tuple([[str(ip)]] + portRange + [res.report]))
+                thread = threading.Thread(target=fn, args=args)
                 thread.start()
                 threads.append(thread)
                 numThreads += 1
