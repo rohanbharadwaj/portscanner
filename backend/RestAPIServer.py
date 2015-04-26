@@ -346,11 +346,22 @@ class CustomRestScanServer(RestAPIServer):
 
     def threadFns(self, fn, job, res):
 
+        # PRE-PROCESS CHUNKING OF LARGE PORT-RANGE
+        chunkedIPPorts = []
+        for ip, pstart, pend in job.IPPorts:
+            if pstart and pend and pstart <= pend:
+                ps, pe = pstart, pend if pend < pstart + MAX_CHUNK_SZ else pstart + MAX_CHUNK_SZ
+                while pe <= pend and ps < pe:
+                    chunkedIPPorts.append((ip, ps, pe))
+                    ps = pe + 1
+                    pe = pend if pend < pe + MAX_CHUNK_SZ else pe + MAX_CHUNK_SZ
+
+
         processed = 0
         while processed < len(job.IPPorts):
             threads = []
             numThreads = 0
-            for ip, pstart, pend in list(job.IPPorts[processed:]):
+            for ip, pstart, pend in list(chunkedIPPorts[processed:]):
                 portRange = None
                 args = None
                 if pstart and pend and pstart <= pend:
@@ -452,7 +463,7 @@ if __name__ == "__main__":
         sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
     # END OF EXAMPLE
 
-    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
+    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.20.24", 1, 100)]))
 
     # START SENDING HEARTBEATS TO MASTER SERVER
     threading.Thread(target=startSendingHeartBeats()).start()
