@@ -192,6 +192,13 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
             cnt += 1
     return json.dumps([{"reqid":reqid,"numjob":len(pendingList[reqid])}])
 '''
+def getWorkerCnt():
+    print "getWorkerCnt"
+    workerCnt = 0
+    for worker in assignedList:
+        workerCnt +=1
+    return workerCnt
+
 
 def requestReceiver(scanIp, scanSequentially, portrange, scanType):
 
@@ -205,7 +212,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
     print "requestReceiver"
     reqid = str(uuid.uuid1())
     pendingList[reqid] = []
-    workerCnt = 5 #getWorkerCnt()
+    workerCnt = getWorkerCnt()
     portRange = endPort - startPort + 1
     ipRange = 0
     global pendingJobCnt
@@ -255,6 +262,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             print "jobItemCnt: " +str(jobItemCnt)
                             print "pendingList[reqid]" + str(pendingList[reqid])
 
+                            print "jobItem"+jobItem
                             #make job with
                             jobItem=[]
                             jobItemCnt=0
@@ -269,6 +277,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             pendingJobCnt += 1
                             print "jobItemCnt: " +str(jobItemCnt)
                             print "pendingList[reqid]" + str(pendingList[reqid])
+                            print "jobItem"+jobItem
 
                         #jobItem.append([str(ip),startPort+(workLimit-jobItemCnt)+1,endPort])
                         #print "jobItem: "+ str(ip) + ":"+str(startPort)+"->"+str(endPort)
@@ -287,6 +296,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
     elif (scanType is IS_UP_BULK):
         print "IS_UP_BULK"
 
+        net = ipcalc.Network(scanIp)
         netsize = ipRange
 
         d = (netsize) / IP_LIMIT
@@ -412,6 +422,8 @@ if __name__ == '__main__':
     #requestReceiver("130.245.124.254", 1, 11000, CONNECT_SCAN);
 
     #print requestReceiver("130.245.124.254", 1, 3000, TCP_FIN_SCAN);
+
+    requestReceiver("130.245.124.254", True, "1-3200", TCP_FIN_SCAN)
 
     #requestReceiver("127.0.0.1", 8000, 9500, CONNECT_SCAN);
 
