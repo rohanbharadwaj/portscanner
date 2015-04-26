@@ -25,6 +25,51 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+<script src="static/js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="static/js/bootstrap.min.js"></script>
+
+    <style>
+
+    table {
+    border: 0px;
+    overflow-y: scroll;
+    overflow-x: scroll;
+    display:block;
+    height:400px;
+    width:100%;
+    }
+
+        td, th {
+  vertical-align: top;
+  border-top: 1px solid #ccc;
+  padding:10px;
+  width:100px;
+}
+    </style>
+
+    <!-- Menu Toggle Script -->
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+    <script type="text/javascript" src="static/js/fin.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#finprogressBar").hide();
+            $("#newScan").hide();
+            $("#finTable").hide();
+            // $("#hide").click(function(){
+            //     $("p").hide();
+            // });
+            // $("#show").click(function(){
+            //     $("p").show();
+            // });
+        });
+        </script>
 
 </head>
 
@@ -34,7 +79,7 @@
 
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-              <ul class="sidebar-nav">
+            <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     <a href="#">
                         Secaffe
@@ -66,14 +111,93 @@
         <!-- /#sidebar-wrapper -->
 
         <!-- Page Content -->
+        <!-- Page Content -->
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-12">
-                        FIN HTML
+                    <!-- <div class="col-lg-12">
+                        
+                    </div> -->
+                    <div class="col-lg-8">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Fin Scan
+                            </div>
+                            <!-- /.panel-heading -->
+                            <div class="panel-body">
+                                <!-- Nav tabs -->
+                               <!--  <ul class="nav nav-pills">
+                                    <li class="active"><a href="#connect_scan" data-toggle="tab">Connect Scan</a>
+                                    </li> -->
+                                    <!--  <li><a href="#ipblock" data-toggle="tab">Block of IP's</a>
+                                </li> -->
+                                <!-- </ul> -->
+                                <div class="progress" style="height:22px;">
+                                    <div class="progress-bar progress-striped active" id="finprogressBar" class="bar" style="color:black;height:22px;width:1%;background-color:green"></div>
+                                </div>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div class="tab-pane fade in active" id="connect_scan">
+                                        <!-- <h4>Single IP</h4> -->
+                                        <p>
+                                            <form id="connect-form" role="form">
+                                                <div class="form-group">
+                                                    <div class="col-lg-6">
+                                                        <label>IP Address</label>
+                                                        <input id="input_ip" name="connect_input_ip" class="form-control input-small" placeholder="172.16.2.3">
+                                                        <p class="help-block">Enter IP Address (Ex:172.16.2.3)</p>
+                                                        <div class="form-group">
+                                                            <label>Port Range</label>
+                                                            <input id="connect_port" name="connect_port" class="form-control" placeholder="0-1024">
+                                                            <p class="help-block">selcet a port range.</p>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Type of scan</label>
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" name="seqran" id="random" value="False" checked>Random
+                                                                </label>
+                                                            </div>
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" name="seqran" id="sequential" value="True">Sequential
+                                                                </label>
+
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" id="finSubmit" class="btn btn-default">Scan</button>
+                                                        <button type="button" onClick="window.location.reload()" id="newScan" class="btn btn-default pull-right">New scan</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>
+                        <!-- /.panel -->
                     </div>
                 </div>
             </div>
+            <div id="scrollable" class="container-fluid">
+                <div id="connect-response" class="row">
+                    <table class="table table-striped table-bordered" id="finTable">
+                        <caption>Scan Results</caption>
+                        <tr>
+                            <th>Job Id</th>
+                            <th>Scanned IP</th>
+                            <th>Time stamp</th>
+                            <th>Type of Scan</th>
+                            <th>Worker IP</th>
+                            <th>Open port/Banner</th>
+                            <th>Scanned Ports</th>
+                        </tr>
+                    </table>
+                    </div>
+                    </div>
+
         </div>
         <!-- /#page-content-wrapper -->
 
@@ -81,18 +205,8 @@
     <!-- /#wrapper -->
 
     <!-- jQuery -->
-    <script src="static/js/jquery.js"></script>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="static/js/bootstrap.min.js"></script>
 
-    <!-- Menu Toggle Script -->
-    <script>
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
-    </script>
 
 </body>
 

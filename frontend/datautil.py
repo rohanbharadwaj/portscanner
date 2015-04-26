@@ -17,7 +17,7 @@ def setup(scanType):  # setsup connection and returns collection
     db = client.secaffe
     if(scanType==CONNECT_SCAN):
         collection = db.connect_scan
-    elif(scanType==IS_UP_BULK):
+    elif(scanType==IS_UP):
         collection = db.is_up_scan
     elif(scanType==TCP_FIN_SCAN):
         collection = db.tcp_fin_scan
@@ -131,11 +131,8 @@ def preprocess(jsondata):
 def Test():
     reqid = "2e591188-eb7b-11e4-a9c1-bc773780be52"
     #collection = setup(CONNECT_SCAN)
-<<<<<<< HEAD
     print fetchProcessedData(reqid,CONNECT_SCAN)
-=======
     #print fetchProcessedData(reqid,CONNECT_SCAN)
->>>>>>> e275cd418be855eed9a7c6e3702fadb14c05f6a9
     # print getCount(reqid)
     # getRawData(collection,reqid)  
     #jsondata = getRawData(collection,reqid)    

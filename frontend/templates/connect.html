@@ -30,6 +30,25 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="static/js/bootstrap.min.js"></script>
 
+    <style>
+
+    table {
+    border: 0px;
+    overflow-y: scroll;
+    overflow-x: scroll;
+    display:block;
+    height:400px;
+    width:100%;
+    }
+
+        td, th {
+  vertical-align: top;
+  border-top: 1px solid #ccc;
+  padding:10px;
+  width:100px;
+}
+    </style>
+
     <!-- Menu Toggle Script -->
     <script>
         $("#menu-toggle").click(function(e) {
@@ -41,6 +60,8 @@
     <script>
         $(document).ready(function(){
             $("#connectprogressBar").hide();
+            $("#newScan").hide();
+            $("#myTable").hide();
             // $("#hide").click(function(){
             //     $("p").hide();
             // });
@@ -133,18 +154,20 @@
                                                         </div>
                                                         <div class="form-group">
                                                             <label>Type of scan</label>
-                                                            <div class="radio">
+                                                           <div class="radio">
                                                                 <label>
-                                                                    <input type="radio" name="seqran" id="sequential" value="True" checked>Sequential
+                                                                    <input type="radio" name="seqran" id="random" value="False" checked>Random
                                                                 </label>
                                                             </div>
                                                             <div class="radio">
                                                                 <label>
-                                                                    <input type="radio" name="seqran" id="random" value="False">Random
+                                                                    <input type="radio" name="seqran" id="sequential" value="True">Sequential
                                                                 </label>
+
                                                             </div>
                                                         </div>
                                                         <button type="button" id="connectSubmit" class="btn btn-default">Scan</button>
+                                                        <button type="button" onClick="window.location.reload()" id="newScan" class="btn btn-default pull-right">New scan</button>
                                                     </div>
                                                 </div>
                                             </form>
@@ -158,12 +181,20 @@
                     </div>
                 </div>
             </div>
-            <div class="container-fluid">
+            <div id="scrollable" class="container-fluid">
                 <div id="connect-response" class="row">
-                    <!-- <div class="col-lg-12">
-                        
-                    </div> -->
-               
+                    <table class="table table-striped table-bordered" id="myTable">
+                        <caption>Scan Results</caption>
+                        <tr>
+                            <th>Job Id</th>
+                            <th>Scanned IP</th>
+                            <th>Time stamp</th>
+                            <th>Type of Scan</th>
+                            <th>Worker IP</th>
+                            <th>Open port/Banner</th>
+                            <th>Scanned Ports</th>
+                        </tr>
+                    </table>
                     </div>
                     </div>
 
