@@ -40,10 +40,11 @@ function synFinResults(){
 			success: function(response){
 			    $("#newScan").show();
 			    $("#synTable").show();
-				console.log(response);
+				//console.log(response);
 //				a = JSON.parse(response)
                 console.log("Response Length "+response.length);
                 var res="rohan";
+
                 if(!syn_printed){
                 var table = document.getElementById("synTable");
 //                var header = table.createTHead();
@@ -63,15 +64,29 @@ function synFinResults(){
                     var scanType = response[i].scanType;
                     var jobId = response[i].jobId;
                     var workerIP_Port = response[i].workerIP_Port;
-                    var IPs = response[i].IPs;
+                    var IPs = response[i].IPPorts;
                     var report = response[i].report;
+                    console.log(response[i].report);
+                    var num_tup = response[i].report.length;
+                    var arr = response[i].report
+                    for(i=0;i<num_tup;i++){
+                        var tuple = arr[i]
+                        var ip = tuple[0]
+                        var ports = tuple[1]
+                        if(ports.length==0)
+                           ports = "Not open"
+                        else
+                        console.log(ip+" "+ports)
+                    }
+                    console.log(response);
                     //var ports = response[i].ports.toString();
-                    console.log(response[i].ports);
+//                    console.log(response[i].ports);
                     //Math.min.apply(Math, [100,13,3,6]);
-                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
+                     var ports = response[i].IPPorts;
+//                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
                     console.log(response[i].ports);
                     var timestamp = response[i].timestamp;
-                    var row = table.insertRow(i);
+                    var row = table.insertRow(-1);
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);

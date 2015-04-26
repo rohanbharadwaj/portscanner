@@ -72,18 +72,17 @@ def receivedata():
     connect_input_ip = request.form['connect_input_ip']
     port_range = request.form['connect_port']
     seqran = request.form['seqran']
-    scan_type = request.form['scan_type']
+    scan_type = request.form['scantype']
     # user =  request.form['username'];
     # password = request.form['password'];
     #[{"reqid": "a5da0bce-eaed-11e4-9475-000c29683c93", "numjob": 1}]
     print "Scan Type : ",str(scan_type==CONNECT_SCAN)
     print "Scan Type : ",scan_type
     # scanType = CONNECT_SCAN
-    scantype = request.form['scantype']
     # user =  request.form['username'];
     # password = request.form['password'];
     #[{"reqid": "a5da0bce-eaed-11e4-9475-000c29683c93", "numjob": 1}]
-    return requestReceiver(connect_input_ip, seqran, port_range, scantype)
+    return requestReceiver(connect_input_ip, seqran, port_range, scan_type)
     # print connect_input_ip
     # reqId = "128bca28-ea3a-11e4-a9c1-bc773780be52"
     # numjobs = 11
@@ -133,7 +132,7 @@ def fetchResults():
         scantype = request.form['scantype']
         return fetchProcessedData(reqId,scantype)
     if request.method == "GET":
-        r = request.form[r]  #128bca28-ea3a-11e4-a9c1-bc773780be52
+        r = "81f89088-ec44-11e4-a9c1-bc773780be52"
         res = fetchProcessedData(r,CONNECT_SCAN)
         print res
         return res
