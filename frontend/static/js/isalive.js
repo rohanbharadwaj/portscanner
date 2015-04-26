@@ -64,15 +64,16 @@ function fetchAliveResults(){
                     var scanType = response[i].scanType;
                     var jobId = response[i].jobId;
                     var workerIP_Port = response[i].workerIP_Port;
-                    var IPs = response[i].IPs;
+                    var IPs = response[i].IPPorts;
                     var report = response[i].report;
                     //var ports = response[i].ports.toString();
-                    console.log(response[i].ports);
+                    console.log(response[i].IPPorts);
                     //Math.min.apply(Math, [100,13,3,6]);
-                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
-                    console.log(response[i].ports);
+                    var ports = response[i].IPPorts;
+                    //var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
+                    console.log(response[i].IPPorts);
                     var timestamp = response[i].timestamp;
-                    var row = table.insertRow(i);
+                    var row = table.insertRow(-1);
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);
@@ -106,7 +107,7 @@ function fetchAliveResults(){
 function updatealiveProgress(percentage){
         $("#aliveprogressBar").show();
         if(percentage >= 100){
-            synFinResults();
+            fetchAliveResults();
              // $("#connectprogressBar").show();
         }
         // if(percentage > 100) {

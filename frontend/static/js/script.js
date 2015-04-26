@@ -46,6 +46,12 @@ function fetchConnectResults(){
                 console.log("Response Length "+response.length);
                 var res="rohan";
                 if(!connect_printed){
+
+
+
+//                $( "#connect-result" ).append(  );
+
+
                 var table = document.getElementById("myTable");
 //                var header = table.createTHead();
 //                var row = header.insertRow(0);
@@ -65,6 +71,7 @@ function fetchConnectResults(){
 //                cell6.innerHTML = "<b>Scanned Ports</b>";
 
                 for(i=0;i<response.length;i++){
+//                var res = "<p>"
 //                    console.log(response[i].scanType);
 //                    console.log(response[i].jobId);
 //                    console.log(response[i].workerIP_Port);
@@ -74,12 +81,23 @@ function fetchConnectResults(){
                     var workerIP_Port = response[i].workerIP_Port;
                     var IPs = response[i].IPPorts;
                     var report = response[i].report;
+                    var num_tup = response[i].report.length;
+                    var arr = response[i].report
+                    for(j=0;j<num_tup;j++){
+                        var tuple = arr[i]
+                        var ip = tuple[0]
+                        var ports = tuple[1]
+                        if(ports.length==0)
+                           ports = "Not open"
+                        else
+                        console.log(ip+" "+ports)
+                    }
                     //var ports = response[i].ports.toString();
-                    console.log(response[i].ports);
+//                    console.log(response[i].ports);
                     //Math.min.apply(Math, [100,13,3,6]);
                     //var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
-                    var ports = response[i].IPPorts;
-                    console.log(response[i].ports);
+                    //var ports = response[i].IPPorts;
+//                    console.log(response[i].ports);
                     var timestamp = response[i].timestamp;
                     var row = table.insertRow(-1);
                     var cell1 = row.insertCell(0);
@@ -95,7 +113,7 @@ function fetchConnectResults(){
                     cell5.innerHTML = workerIP_Port;
                     cell2.innerHTML = IPs;
                     cell6.innerHTML = report;
-                    cell7.innerHTML = ports;
+                    //cell7.innerHTML = ports;
                     cell3.innerHTML = timestamp;
 
                    //res+="<p>"+response[i].scanType+" "+response[i].jobId+" "+response[i].workerIP_Port+" "+response[i].IPs+" "+"</p>";

@@ -17,7 +17,7 @@
         rules: {
             connect_input_ip: {
               required: true,
-              IP4Checker: true,
+              IP4Checker: false,
             },            
         },
         // Specify the validation error messages
@@ -41,7 +41,7 @@
         rules: {
             connect_input_ip: {
               required: true,
-              IP4Checker: true,
+              IP4Checker: false,
             },
             connect_port: {
               required: true,
