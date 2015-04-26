@@ -30,12 +30,12 @@ def connect():
 
 @app.route('/fin')
 def fin():
-    return render_template('fin.html') 
+    return render_template('fin.html')
 
 @app.route('/isalive')
 def isalive():
     return render_template('isalive.html')
- 
+
 @app.route('/reports')
 def reports():
     return render_template('reports.html')
@@ -47,7 +47,7 @@ def syn():
 @app.route('/fetchdata',methods=["GET", "POST"])
 def fetchdata():
 	if request.method == "GET":
-		return fetch() 
+		return fetch()
 
 @app.route('/test')
 def test():
@@ -62,7 +62,7 @@ def signUpUser():
     user =  request.form['username'];
     password = request.form['password'];
     return json.dumps({'status':'OK','user':user,'pass':password});
-  
+
 @app.route('/senddata')
 def senddata():
     return render_template('senddata.html')
@@ -94,7 +94,7 @@ def mongogetdata():
 def submit():
     ip = request.form['input_ip']
     return json.dumps([{'reqId':'12345','numjobs':'8'}])
-    #return json.dumps([{'ip':ip}])    
+    #return json.dumps([{'ip':ip}])
 
 @app.route('/getJobStatus',methods=['POST'])
 def getJobStatus():
@@ -103,9 +103,9 @@ def getJobStatus():
     count = getCount(reqId,scantype)
     return json.dumps([{'reqId':reqId,'count':count}])
 
-@app.route('/getReports',methods=['POST']) 
+@app.route('/getReports',methods=['POST'])
 def getReports():
-    ip = request.form['']   
+    ip = request.form['']
     # i = 0
     # if(i>8):
     #     return json.dumps([{'name':name,'done':'true','pending':0}])
@@ -120,9 +120,9 @@ def fetchResults():
         scantype = request.form['scantype']
         return fetchProcessedData(reqId,scantype)
     if request.method == "GET":
-        res = fetchProcessedData("128bca28-ea3a-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+        res = fetchProcessedData("2e591188-eb7b-11e4-a9c1-bc773780be52",CONNECT_SCAN)
         print res
-        return res    
+        return res
 
 
 @app.route('/connect_post',methods=['POST'])

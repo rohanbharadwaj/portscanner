@@ -97,9 +97,12 @@ def connect_scan(ips, ports, ret=[]):
                 elem.close()
 
             # Send something to grab the banner
-            for elem in open_socks:
-                print('Open sock: ', elem.getpeername())
-                elem.send('hi')
+            for elem in list(open_socks):
+                try:
+                    print('Open sock: ', elem.getpeername())
+                    elem.send('hi')
+                except:
+                    open_socks.remove(elem)
 
             cur_time = time.time()
             timeout = 10
@@ -339,14 +342,23 @@ class RestAPIServer(object):
 
 class CustomRestScanServer(RestAPIServer):
 
-    def threadFns(self, fn, job, res, extra_args=None):
+    def threadFns(self, fn, job, res):
+
         processed = 0
-        while processed < len(job.IPs) - 1:
+        while processed < len(job.IPPorts):
             threads = []
             numThreads = 0
-            for x in list(job.IPs[processed:]):
-                print 'Processing {0}:{1}'.format(x, extra_args)
-                thread = threading.Thread(target=fn, args=tuple([[str(x)]] + extra_args + [res.report]))
+            for ip, pstart, pend in list(job.IPPorts[processed:]):
+                portRange = None
+                args = None
+                if pstart and pend and pstart <= pend:
+                    portRange = list(range(pstart, pend + 1))
+                    args = tuple([[str(ip)], portRange, res.report])
+                    print 'Processing {0}:{1}'.format(ip, (pstart, pend))
+                else:
+                    args = tuple([[str(ip)], res.report])
+                    print 'Processing {0}'.format(ip)
+                thread = threading.Thread(target=fn, args=args)
                 thread.start()
                 threads.append(thread)
                 numThreads += 1
@@ -369,11 +381,11 @@ class CustomRestScanServer(RestAPIServer):
             res.report = []
 
             if job.scanType == CONNECT_SCAN:
-                self.threadFns(connect_scan, job, res, [res.ports])
+                self.threadFns(connect_scan, job, res)
             elif job.scanType == TCP_FIN_SCAN:
-                self.threadFns(tcpFINScan, job, res, [res.ports])
+                self.threadFns(tcpFINScan, job, res)
             elif job.scanType == TCP_SYN_SCAN:
-                self.threadFns(tcpSYNScan, job, res, [res.ports])
+                self.threadFns(tcpSYNScan, job, res)
             elif job.scanType == IS_UP or job.scanType == IS_UP_BULK:
                 self.threadFns(get_up, job, res)
             else:
@@ -431,26 +443,17 @@ if __name__ == "__main__":
 
     # EXAMPLE OF SENDING REQ RES OBJECTS
     if RUN_BASIC_TEST:
-        sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
-        sendAndReceiveObjects(URL, Job(IS_UP_BULK, ["172.24.22.114", "130.245.124.254"]))
-        sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["172.24.22.114", "130.245.124.254"]))
-        sendAndReceiveObjects(URL, Job(TCP_FIN_SCAN, ["172.24.22.114"], 21, 2000))
-        sendAndReceiveObjects(URL, Job(CONNECT_SCAN, ["172.24.22.114"], 21, 22))
+        sendAndReceiveObjects(URL, Job(IS_UP, [("172.24.22.114", None, None)]))
+        sendAndReceiveObjects(URL, Job(IS_UP_BULK, [("172.24.22.114", None, None), ("130.245.124.254", None, None)]))
+        sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, [("172.24.22.114", 1, 100), ("130.245.124.254", 1, 100)]))
+        sendAndReceiveObjects(URL, Job(TCP_FIN_SCAN, [("172.24.22.114", 1, 100)]))
+        sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
     # END OF EXAMPLE
 
-    #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.114"]))
-    #sendAndReceiveObjects(URL, Job(IS_UP, ["130.245.124.254"]))
-    #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
-    #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["172.24.22."+str(x) for x in range(2, 5)], True, 20, 21))
-    #sendAndReceiveObjects(URL, Job(TCP_SYN_SCAN, ["130.245.124.254"]))
-    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [LOCAL_IP], 8080, 8080))
-    #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22."+str(x) for x in range(2, 201)]))
-    #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.50-100"]))
-    #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.100-150"]))
-    #sendAndReceiveObjects(URL, Job(IS_UP, ["172.24.22.150-200"]))
+    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
 
     # START SENDING HEARTBEATS TO MASTER SERVER
-    #threading.Thread(target=startSendingHeartBeats()).start()
+    threading.Thread(target=startSendingHeartBeats()).start()
 
     # START SENDING HEART BEAT MESSAGES
     while SERVER_ALIVE_FOR_SECONDS != 0:
