@@ -91,6 +91,11 @@ def loaddata():
 def mongogetdata():
     return getdata()
 
+@app.route('/getResults',methods=['POST'])
+def getResults():
+    ip = request.form['input_ip']
+    return json.dumps([{'ip':ip}])    
+
 @app.route('/submit',methods=['POST'])
 def submit():
     ip = request.form['input_ip']
@@ -121,7 +126,8 @@ def fetchResults():
         scantype = request.form['scantype']
         return fetchProcessedData(reqId,scantype)
     if request.method == "GET":
-        res = fetchProcessedData("2e591188-eb7b-11e4-a9c1-bc773780be52",CONNECT_SCAN)
+        r = request.form[r]  #128bca28-ea3a-11e4-a9c1-bc773780be52
+        res = fetchProcessedData(r,CONNECT_SCAN)
         print res
         return res
 

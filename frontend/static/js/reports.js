@@ -3,14 +3,14 @@ $(function(){
 	var done = false;
 	var totalobj;
 	var reqid;
-	var connect_printed = false;
+	var syn_printed = false;
 
-   $('#connectSubmit').click(function(){
+   $('#getResults').click(function(){
       // alert("rohan")
       console.log($('form'));
       $.ajax({
-         url: '/receivedata',
-         data: $('form').serialize() + '&scantype=CONNECT_SCAN',
+         url: '/getResults',
+         data: $('form').serialize(),
          type: 'POST',
          dataType: 'json',
          success: function(response){
@@ -20,7 +20,7 @@ $(function(){
             //console.log(response["reqid"]);
             reqid = response[0]["reqid"];
             totalobj = response[0]["numjob"];
-            connectPoll();
+            synPoll();
             // console.log(reqid)
             // console.log(totalobj)
          },
@@ -30,22 +30,22 @@ $(function(){
       });
    });
 
-function fetchConnectResults(){
-	console.log("Fetching Results in fetchConnectResults")
+function synFinResults(){
+	console.log("Fetching Results in synFinResults")
 	$.ajax({
 			url: '/fetchResults',
-			data: {"reqId":reqid,"scantype":"CONNECT_SCAN"},
+			data: {"reqId":reqid,"scantype":"TCP_SYN_SCAN"},
 			type: 'POST',
 			dataType: 'json',
 			success: function(response){
 			    $("#newScan").show();
-			    $("#myTable").show();
+			    $("#synTable").show();
 				console.log(response);
 //				a = JSON.parse(response)
                 console.log("Response Length "+response.length);
                 var res="rohan";
-                if(!connect_printed){
-                var table = document.getElementById("myTable");
+                if(!syn_printed){
+                var table = document.getElementById("synTable");
 //                var header = table.createTHead();
 //                var row = header.insertRow(0);
 //                var cell = row.insertCell(0);
@@ -90,7 +90,7 @@ function fetchConnectResults(){
 
                    //res+="<p>"+response[i].scanType+" "+response[i].jobId+" "+response[i].workerIP_Port+" "+response[i].IPs+" "+"</p>";
                 }
-                connect_printed = true;
+                syn_printed = true;
                 }
                 //$('#connect-response').append(res)
                 //console.log(res)
@@ -101,11 +101,11 @@ function fetchConnectResults(){
 			}
 		});
 }
-	
-function updateConnectProgress(percentage){
-		$("#connectprogressBar").show();
+
+function updatesynProgress(percentage){
+		$("#reposrtsprogressBar").show();
 		if(percentage >= 100){
-			fetchConnectResults();
+			synFinResults();
 			 // $("#connectprogressBar").show();
 		}
 	    // if(percentage > 100) {
@@ -113,13 +113,13 @@ function updateConnectProgress(percentage){
 	    // }
 	    if(!isNaN(percentage)){
             if(percentage >100)  percentage = 100;
-		    $('#connectprogressBar').css('width', percentage+'%');
-		    $('#connectprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
+		    $('#reposrtsprogressBar').css('width', percentage+'%');
+		    $('#reposrtsprogressBar').html('Fetching data '+Math.floor(percentage)+'% complete');
 		}
-	}	
-   function connectPoll(){
+	}
+   function synPoll(){
 
-    $.post('/getJobStatus',{"reqId":reqid,"scantype":"CONNECT_SCAN"},function(data) {
+    $.post('/getJobStatus',{"reqId":reqid,"scantype":"TCP_SYN_SCAN"},function(data) {
         //console.log(reqid);  // process results here
         //console.log(data[0].done);
         // totalJobs = response[0].numjobs;
@@ -132,7 +132,7 @@ function updateConnectProgress(percentage){
         if(data[0].count <= totalobj && !done){
         // 	// Poll until the job is not ready
         	 remaining = data[0].count;
-             updateConnectProgress((remaining/totalobj)*100);
+             updatesynProgress((remaining/totalobj)*100);
 
          }
 
@@ -143,96 +143,12 @@ function updateConnectProgress(percentage){
         	//updateConnectProgress((remaining/totalJobs)*100);
         	//fetchConnectResults(reqid)
         	remaining = data[0].count;
-            updateConnectProgress((remaining/totalobj)*100);
+            updatesynProgress((remaining/totalobj)*100);
         	console.log("Job completed")
         	done = true
 
          }
-        setTimeout(connectPoll,5000);
-    },'json');
-	}
-
-
-   $('#register').click(function(){
-		//console.log($('form'));
-		var user = $('#txtUsername').val();
-		var pass = $('#txtPassword').val();
-		$.ajax({
-			url: '/signUpUser',
-			data: $('form').serialize(),
-			type: 'POST',
-			success: function(response){
-				console.log(response);
-			},
-			error: function(error){
-				console.log(error);
-			}
-		});
-	});
-
-
-	$('#getReports').click(function(){
-		// alert("yayy")
-		console.log($('form'));
-		// var user = $('#txtUsername').val();
-		// var pass = $('#txtPassword').val();
-		$.ajax({
-			url: '/submit',
-			data: $('form').serialize(),
-			type: 'POST',
-			dataType: "json",
-			success: function(response){
-				console.log(response[0].reqId);
-				//test(response);
-				reqId = response[0].reqId
-				doPoll(reqId,response[0].numjobs);
-
-			},
-			error: function(error){
-				console.log(error);
-			}
-		});
-	});
-
-	function test(response){
-		console.log("this is awesome");
-		console.log(response[0].reqId);
-	}
-
-	function updateProgress(percentage){
-		if(percentage == 100){
-			 $("#results_id").show();
-		}
-	    if(percentage > 100) {
-	    	percentage = 100;
-	    }
-	    if(!isNaN(percentage)){
-
-		    $('#progressBar').css('width', percentage+'%');
-		    $('#progressBar').html('Fetching data '+percentage+'% complete');
-		}
-	}
-
-	function doPoll(reqid,totalJobs){
-    $.post('/getReports',{},function(data) {
-        //console.log(reqid);  // process results here
-        //console.log(data[0].done);
-        // totalJobs = response[0].numjobs;
-        // console.log(reqId);
-        // console.log(data[0].done);
-        if(data[0].done!='true' && notdone){
-        // 	// Poll until the job is not ready
-        	remaining = data[0].pending;
-         	updateProgress((remaining/totalJobs)*100);
-
-         }
-         else if(data[0].done!='false' && notdone){
-        // //job is completed display on the UI
-
-        	notdone = false;
-
-         }
-        setTimeout(doPoll,5000);
+        setTimeout(synPoll,5000);
     },'json');
 	}
 

@@ -6,9 +6,65 @@
                 return value.match(ip);
             }, 'Invalid IP address');
 
+    $.validator.addMethod('PortRange', function(value) {
+            var port = "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])-([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])";
+                return value.match(port);
+            }, 'Invalid Port Range');
 
+
+        $("#isup-form").validate({
+        // Specify the validation rules
+        rules: {
+            connect_input_ip: {
+              required: true,
+              IP4Checker: true,
+            },            
+        },
+        // Specify the validation error messages
+        messages: {
+            ip: "Please enter valid IP Address",
+            // firstname: "Please enter your first name",  
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
+    
+    $('#isup').on('click', function() {
+        // alert("in 1");
+    $("#isup-form").valid();
+
+    });
+
+    $("#connect-form").validate({
+        // Specify the validation rules
+        rules: {
+            connect_input_ip: {
+              required: true,
+              IP4Checker: true,
+            },
+            connect_port: {
+              required: true,
+              PortRange: true,
+            },               
+        },
+        // Specify the validation error messages
+        messages: {
+            ip: "Please enter valid IP Address",
+            // firstname: "Please enter your first name",  
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
+
+    $('#connectSubmit').on('click', function() {
+        // alert("in 1");
+    $("#connect-form").valid();
+
+    });
   
-    $("#register-form1").validate({
+    $("#isup-form").validate({
 
         // Specify the validation rules
         rules: {
