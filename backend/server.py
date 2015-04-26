@@ -125,7 +125,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
 
     reqid = str(uuid.uuid1())
     pendingList[reqid] = []
-    workerCnt = getWorkerCnt()
+    workerCnt = 5 #getWorkerCnt()
     portRange = endPort - startPort + 1
     ipRange = 0
 
@@ -178,7 +178,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                         #make job of it directly and move to next job
                     else:
                         if((rangeCnt+(workLimit-jobItemCnt))<=portRange):
-                            jobItem.append([str(ip),rangeCnt+1,rangeCnt+(workLimit-jobItemCnt)])
+                            jobItem.append([str(ip),startPort+rangeCnt,startPort+rangeCnt+(workLimit-jobItemCnt)])
                             itemCnt = itemCnt + (workLimit-jobItemCnt)
                             rangeCnt=rangeCnt+(workLimit-jobItemCnt)
                             jobItemCnt=jobItemCnt+(workLimit-jobItemCnt)
@@ -202,7 +202,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             #jobItem=[]
                             #jobItemCnt=0
                         else:
-                            jobItem.append([str(ip),rangeCnt+1,rangeCnt+(portRange-rangeCnt)])
+                            jobItem.append([str(ip),startPort+rangeCnt,startPort+rangeCnt+(portRange-1-rangeCnt)])
                             itemCnt = itemCnt + (portRange-rangeCnt)
                             rangeCnt=rangeCnt+(portRange-rangeCnt)
                             jobItemCnt=jobItemCnt+(portRange-rangeCnt)
@@ -361,8 +361,8 @@ class MyRestServer(RestAPIServer):
 
 
 if __name__ == '__main__':
-    srvr = MyRestServer()
-    srvr.run_server()
+    #srvr = MyRestServer()
+    #srvr.run_server()
 
     # sleep(15)
     # sendAndReceiveObjects(URL, Register("27.0.0.0.1",8080))
@@ -374,7 +374,7 @@ if __name__ == '__main__':
 
     #requestReceiver("172.24.22.0/26", 1, 1200, TCP_FIN_SCAN);
     #requestReceiver("130.245.124.254", 1, 5000, TCP_FIN_SCAN);
-    requestReceiver("172.24.22.0/26", True, "1-2000", IS_UP_BULK);
+    requestReceiver("172.24.2.20/24", True, "20-31", TCP_FIN_SCAN);
 
     #processReport("123", "123", "conn", {ip: "123.32.34.45" })
 
