@@ -23,11 +23,11 @@ class Req(object):
 
 
 class Job(Req):
-    def __init__(self, scanType, IPs, scanSequentially=True, startPort=1, endPort=100, jobId=None, reqId=None):
+    def __init__(self, scanType, IPPorts, scanSequentially=True, jobId=None, reqId=None):
         self.scanSequentially = scanSequentially
         self.scanType = scanType
-        self.IPs = IPs
-        self.ports = list(range(startPort, endPort + 1))
+        self.IPPorts = IPPorts
+        #self.ports = list(range(startPort, endPort + 1))
         self.jobId = jobId
         self.reqId = reqId
 
@@ -48,8 +48,8 @@ class Res(object):
         self.workerIP_Port = '{0}:{1}'
         self.scanType = job.scanType
         self.scanSequentially = job.scanSequentially
-        self.IPs = job.IPs
-        self.ports = job.ports
+        self.IPPorts = job.IPPorts
+        #self.ports = job.ports
         self.jobId = job.jobId
         self.reqId = job.reqId
         self.timestamp = '{2}'
