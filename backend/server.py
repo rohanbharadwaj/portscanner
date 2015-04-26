@@ -265,6 +265,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
                             pendingList[reqid].append(jobObj)
                             pendingJobCnt += 1
+                            assignWork(jobObj);
                             print "jobItemCnt: " +str(jobItemCnt)
                             print "pendingList[reqid]" + str(pendingList[reqid])
 
@@ -281,6 +282,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                             jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
                             pendingList[reqid].append(jobObj)
                             pendingJobCnt += 1
+                            assignWork(jobObj);
                             print "jobItemCnt: " +str(jobItemCnt)
                             print "pendingList[reqid]" + str(pendingList[reqid])
                             print "jobItem"+jobItem
@@ -299,6 +301,7 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
                     jobObj = Job(scanType, jobItem, scanSequentially, jobid, reqid)
                     pendingList[reqid].append(jobObj)
                     pendingJobCnt += 1
+                    assignWork(jobObj);
                     print "jobItem"+jobItem
                     print "pendingList[reqid]" + str(pendingList[reqid])
 
