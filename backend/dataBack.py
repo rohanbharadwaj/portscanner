@@ -52,7 +52,7 @@ def insertdata(client, json_data, scanType):
     jsond= json.loads(json_data)
     print type(jsond)
     print jsond
-
+    print "**************************INSERTING RECORD**************************************************"
     print records.insert(jsond)
     print "End"
 
