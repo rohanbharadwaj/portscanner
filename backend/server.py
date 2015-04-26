@@ -17,8 +17,8 @@ from ReqResObjects import *
 from dataBack import *
 
 
-LIMIT = 1000
-IP_LIMIT = 100
+LIMIT = 2**30
+CONN_LIMIT = 1000
 pendingList = {}
 assignedList = {}
 assignedListLock = threading.Lock()
@@ -152,7 +152,9 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
         itemrem = numItems%workerCnt
         workLimit=workDiv
         if(workDiv>LIMIT):
-            workLimit=LIMIT
+             workLimit=LIMIT
+        if(scanType==CONNECT_SCAN):
+            workLimit=CONN_LIMIT
 
     print "workLimit: " + str(workLimit)
     print "itemrem: " + str(itemrem)
