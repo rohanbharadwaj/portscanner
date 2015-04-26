@@ -447,7 +447,7 @@ if __name__ == "__main__":
         sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
     # END OF EXAMPLE
 
-    sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
+    #sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
 
     # START SENDING HEARTBEATS TO MASTER SERVER
     threading.Thread(target=startSendingHeartBeats()).start()
