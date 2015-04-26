@@ -340,15 +340,16 @@ class RestAPIServer(object):
 class CustomRestScanServer(RestAPIServer):
 
     def threadFns(self, fn, job, res):
+
         processed = 0
-        while processed < len(job.IPPorts) - 1:
+        while processed < len(job.IPPorts):
             threads = []
             numThreads = 0
             for ip, pstart, pend in list(job.IPPorts[processed:]):
                 portRange = None
                 args = None
                 if pstart and pend and pstart <= pend:
-                    portRange = list(range(pstart, pend))
+                    portRange = list(range(pstart, pend + 1))
                     args = tuple([[str(ip)], portRange, res.report])
                     print 'Processing {0}:{1}'.format(ip, (pstart, pend))
                 else:
@@ -445,6 +446,8 @@ if __name__ == "__main__":
         sendAndReceiveObjects(URL, Job(TCP_FIN_SCAN, [("172.24.22.114", 1, 100)]))
         sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
     # END OF EXAMPLE
+
+    sendAndReceiveObjects(URL, Job(CONNECT_SCAN, [("172.24.22.114", 1, 100)]))
 
     # START SENDING HEARTBEATS TO MASTER SERVER
     threading.Thread(target=startSendingHeartBeats()).start()
