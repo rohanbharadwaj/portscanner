@@ -233,6 +233,13 @@ def tcpSYNScan(ips, ports, ret=[]):
 
 
 # ----------------------END OF SCANNER LOGIC-----------------------------------------------
+# ADDED THIS CUSTOM CLASS SO THAT IT CAN SERVICE AT ANOTHER PORT. WEB-PY TAKES PORT ONLY
+# THROUGH SYS.ARGV (I.E, THROUGH COMMAND LINE)
+class CustomWebApp(web.application):
+    def run(self, port=8080, *middleware):
+        func = self.wsgifunc(*middleware)
+        return web.httpserver.runsimple(func, ('0.0.0.0', port))
+
 class RestAPIServer(object):
     app = None
 
@@ -299,8 +306,8 @@ class RestAPIServer(object):
 
     def run_server(self):
         global URL_PATTERN_SERVICED
-        self.app = web.application(URL_PATTERN_SERVICED, globals())
-        webthread = threading.Thread(target=self.app.run)
+        self.app = CustomWebApp(URL_PATTERN_SERVICED, globals())
+        webthread = threading.Thread(target=self.app.run, kwargs={'port': LOCAL_SERVICE_PORT})
         processthread = threading.Thread(target=self.process)
         webthread.start()
         sleep(3)
@@ -444,8 +451,8 @@ def startSendingHeartBeats():
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-P", "--serverip", dest="serverip", help="Server IP", default=SERVER_IP)
-    parser.add_option("-I", "--serverport", dest="serverport", help="Server Port", default=SERVER_PORT)
-    parser.add_option("-p", "--port", dest="port", help="Local Port", default=LOCAL_SERVICE_PORT)
+    parser.add_option("-I", "--serverport", type="int", dest="serverport", help="Server Port", default=SERVER_PORT)
+    parser.add_option("-p", "--port", type="int", dest="port", help="Local Port", default=LOCAL_SERVICE_PORT)
     (options, args) = parser.parse_args()
     print 'USER DEFINED OPTIONS : {0}'.format(options)
     SERVER_IP = options.__dict__['serverip']
