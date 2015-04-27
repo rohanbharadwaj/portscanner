@@ -117,7 +117,9 @@ def getJobStatus():
 
 @app.route('/getReports',methods=['POST'])
 def getReports():
-    ip = request.form['']
+    ip = str(request.form['input_ip'])
+    scantype = request.form['scantype']
+    return json.dumps(getReportData(ip, scantype));
     # i = 0
     # if(i>8):
     #     return json.dumps([{'name':name,'done':'true','pending':0}])
@@ -132,7 +134,7 @@ def fetchResults():
         scantype = request.form['scantype']
         return fetchProcessedData(reqId,scantype)
     if request.method == "GET":
-        r = "81f89088-ec44-11e4-a9c1-bc773780be52"
+        r = "48ad5c26-ec82-11e4-a9c1-bc773780be52"
         res = fetchProcessedData(r,CONNECT_SCAN)
         print res
         return res

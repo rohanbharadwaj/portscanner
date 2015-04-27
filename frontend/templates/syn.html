@@ -45,11 +45,15 @@
     width:100%;
     }
 
-        td, th {
-  vertical-align: top;
-  border-top: 1px solid #ccc;
-  padding:10px;
-  width:100px;
+
+     td, th {
+      word-break:break-all;
+      vertical-align: top;
+      border-top: 0.5px solid #ccc;
+      padding:10px;
+
+    font-family: Arial;
+ font-size: 12px;
 }
     </style>
 
@@ -104,9 +108,9 @@
                 <li>
                     <a href="/fin">FIN Scan</a>
                 </li>
-                <li>
-                    <a href="/auto">Auto Scan</a>
-                </li>
+                <!--<li>-->
+                    <!--<a href="/auto">Auto Scan</a>-->
+                <!--</li>-->
                 <li>
                     <a href="/reports">Reports</a>
                 </li>
@@ -189,15 +193,30 @@
                 <div id="connect-response" class="row">
                     <table class="table table-striped table-bordered" id="synTable">
                         <caption>Scan Results</caption>
+                        <col width="50">
+                        <col width="150">
+                        <col width="150">
+                        <col width="150">
+                        <!--<col width="120">-->
+                        <col width="550">
+
                         <tr>
-                            <th>Job Id</th>
-                            <th>Scanned IP</th>
+                            <th>Job</th>
                             <th>Time stamp</th>
-                            <th>Type of Scan</th>
+                            <th>Scan Type</th>
                             <th>Worker IP</th>
-                            <th>Open port/Banner</th>
-                            <th>Scanned Ports</th>
+                            <th>[IP : Open port]</th>
+                            <!--<th>Scanned Ports</th>-->
                         </tr>
+                        <!--<tr>-->
+                            <!--<th>Job Id</th>-->
+                            <!--<th>Scanned IP</th>-->
+                            <!--<th>Time stamp</th>-->
+                            <!--<th>Type of Scan</th>-->
+                            <!--<th>Worker IP</th>-->
+                            <!--<th>Open port/Banner</th>-->
+                            <!--<th>Scanned Ports</th>-->
+                        <!--</tr>-->
                     </table>
                     </div>
                     </div>

@@ -147,13 +147,23 @@ def Test():
 
 def getReportData(searchip, scanType):
     a = searchip.split(".")
-    collection = setup(scanType)
+    collectionsFin = setup(TCP_FIN_SCAN)
+    collectionConn = setup(CONNECT_SCAN)
+    collectionSyn = setup(TCP_SYN_SCAN)
+    collectionIP = setup(IS_UP_BULK)
+
     querystr = '/^'+a[0]+'\.'+a[1]+'\.'+a[2]+'\.'+a[3]+'*/.test(this.report)'
     #querystr = '/^127\.0\.0\.1*/.test(this.report)'
     print querystr
     result = []
-    print collection.find( { '$where': querystr } ).count()
-    for e in collection.find({ '$where': querystr},{'_id':0}):
+    print collectionConn.find( { '$where': querystr } ).count()
+    for e in collectionConn.find({ '$where': querystr},{'_id':0}):
+        result.append(e)
+    for e in collectionsFin.find({ '$where': querystr},{'_id':0}):
+        result.append(e)
+    for e in collectionSyn.find({ '$where': querystr},{'_id':0}):
+        result.append(e)
+    for e in collectionIP.find({ '$where': querystr},{'_id':0}):
         result.append(e)
     return result
 

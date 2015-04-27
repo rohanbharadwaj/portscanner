@@ -55,39 +55,80 @@ function fetchFinResults(){
 //                var cell4 = row.insertCell(4);
 //                var cell5 = row.insertCell(5);
 //                var cell6 = row.insertCell(6);
-                for(i=0;i<response.length;i++){
+//                for(i=0;i<response.length;i++){
 //                    console.log(response[i].scanType);
 //                    console.log(response[i].jobId);
 //                    console.log(response[i].workerIP_Port);
 //                    console.log(response[i].IPs);
-                    var scanType = response[i].scanType;
-                    var jobId = response[i].jobId;
-                    var workerIP_Port = response[i].workerIP_Port;
-                    var IPs = response[i].IPPorts;
-                    var report = response[i].report;
-                    //var ports = response[i].ports.toString();
-                    console.log(response[i].ports);
-                    //Math.min.apply(Math, [100,13,3,6]);
-                    var ports = response[i].IPPorts;
-//                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
-                    console.log(response[i].ports);
-                    var timestamp = response[i].timestamp;
+//                    var scanType = response[i].scanType;
+//                    var jobId = response[i].jobId;
+//                    var workerIP_Port = response[i].workerIP_Port;
+//                    var IPs = response[i].IPPorts;
+//                    var report = response[i].report;
+//                    //var ports = response[i].ports.toString();
+//                    console.log(response[i].ports);
+//                    //Math.min.apply(Math, [100,13,3,6]);
+//                    var ports = response[i].IPPorts;
+////                    var ports = Math.min.apply(Math,response[i].ports)+"-"+Math.max.apply(Math,response[i].ports);
+//                    console.log(response[i].ports);
+//                    var timestamp = response[i].timestamp;
+//                    var row = table.insertRow(-1);
+//                    var cell1 = row.insertCell(0);
+//                    var cell2 = row.insertCell(1);
+//                    var cell3 = row.insertCell(2);
+//                    var cell4 = row.insertCell(3);
+//                    var cell5 = row.insertCell(4);
+//                    var cell6 = row.insertCell(5);
+//                    var cell7 = row.insertCell(6);
+//
+//                    cell4.innerHTML = scanType;
+//                    cell1.innerHTML = i+1;
+//                    cell5.innerHTML = workerIP_Port;
+//                    cell2.innerHTML = IPs;
+//                    cell6.innerHTML = report;
+//                    cell7.innerHTML = ports;
+//                    cell3.innerHTML = timestamp;
+                          data = response;
+                        console.log(data.length);
+                        for(i=0;i<response.length;i++){
+                        var timestamp = data[i].timestamp;
+                        console.log("Time stamp : "+timestamp)
+                        var scanType = data[i].scanType;
+                        var workerIP_Port = data[i].workerIP_Port;
+                        var scanSequentially = data[i].scanSequentially;
+                        var report = data[i].report;
+                        var report_len = report.length;
+                        for(j=0;j<report_len;j++){
+                        var tuple = report[j];
+                        var data_len = tuple[1].length;
+                        var banner_port = tuple[1];
+                        var rep_data = "";
+                        for(k=0;k<data_len;k++){
+                             if(tuple[1].length>0)
+                             rep_data+="["+tuple[0]+" : "+banner_port[k]+"]<br />";
+//                           rep_data+="["+banner_port[k]+"]";
+                        }
+                        console.log(tuple[0]+" "+tuple[1]+" "+rep_data);
+                        }
+
+
+                   // var timestamp = response[i].timestamp;
                     var row = table.insertRow(-1);
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
                     var cell3 = row.insertCell(2);
                     var cell4 = row.insertCell(3);
                     var cell5 = row.insertCell(4);
-                    var cell6 = row.insertCell(5);
-                    var cell7 = row.insertCell(6);
+//                    var cell6 = row.insertCell(5);
+//                    var cell7 = row.insertCell(6);
 
-                    cell4.innerHTML = scanType;
+                    cell3.innerHTML = scanType;
                     cell1.innerHTML = i+1;
-                    cell5.innerHTML = workerIP_Port;
-                    cell2.innerHTML = IPs;
-                    cell6.innerHTML = report;
-                    cell7.innerHTML = ports;
-                    cell3.innerHTML = timestamp;
+                    cell4.innerHTML = workerIP_Port;
+//                    cell2.innerHTML = IPs;
+                    cell5.innerHTML = rep_data;
+                    //cell7.innerHTML = ports;
+                    cell2.innerHTML = timestamp;
 
                    //res+="<p>"+response[i].scanType+" "+response[i].jobId+" "+response[i].workerIP_Port+" "+response[i].IPs+" "+"</p>";
                 }
