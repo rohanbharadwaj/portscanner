@@ -12,12 +12,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return render_template('index.html')
 
 @app.route('/index')
 def index():
-    srvr = MyRestServer()
-    srvr.run_server()
     return render_template('index.html')
 
 @app.route('/auto')
@@ -149,4 +147,6 @@ def connect_post():
     return json.dumps({'connect_input_ip':connect_input_ip,'port_range':port_range,'type_scan':type_scan});
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    srvr = MyRestServer()
+    srvr.run_server()
+    app.run(debug=False)
