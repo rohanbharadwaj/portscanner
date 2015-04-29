@@ -150,8 +150,8 @@ def tcpFINScan(ips, ports, ret=[]):
 
     conf.verb = 0  # Disable verbose in sr(), sr1() methods
     start_time = time.time()
-    # upIPs = get_up(ips)
-    upIPs = ips
+    upIPs = get_up(ips)
+    #upIPs = ips
     try:
         if upIPs:
             print "Host %s is up, start scanning" % upIPs
@@ -164,7 +164,7 @@ def tcpFINScan(ips, ports, ret=[]):
 
                 # resp.summary()
                 oldstdout = sys.stdout
-                sys.stdout = open(os.devnull, 'w')
+                #sys.stdout = open(os.devnull, 'w')
                 resp.summary(prn=lambda (s, r): catcher(
                     TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf(
                         "%TCP.sport%"), inactive_ports), lfilter=lambda (s, r): r.sprintf("%TCP.flags%") == "RA")
@@ -205,7 +205,7 @@ def tcpSYNScan(ips, ports, ret=[]):
 
                 # resp.summary()
                 oldstdout = sys.stdout
-                sys.stdout = open(os.devnull, 'w')
+                #sys.stdout = open(os.devnull, 'w')
                 resp.summary(prn=lambda (s, r): catcher(
                     TCP_SERVICES[r.sprintf("%TCP.sport%")] if r.sprintf("%TCP.sport%") in TCP_SERVICES else r.sprintf(
                         "%TCP.sport%"), active_ports), lfilter=lambda (s, r): r.sprintf("%TCP.flags%") == "SA")
