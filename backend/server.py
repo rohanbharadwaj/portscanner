@@ -129,6 +129,9 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
     portRange = endPort - startPort + 1
     ipRange = 0
 
+    if(workerCnt==0):
+        workerCnt = 1
+
     if(scanType==IS_UP_BULK):
        portRange=1
 
@@ -155,6 +158,8 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
              workLimit=LIMIT
         if(scanType==CONNECT_SCAN):
             workLimit=CONN_LIMIT
+
+
 
     print "workLimit: " + str(workLimit)
     print "itemrem: " + str(itemrem)
@@ -263,6 +268,9 @@ def requestReceiver(scanIp, scanSequentially, portrange, scanType):
 
         net = ipcalc.Network(scanIp)
         netsize = ipRange
+
+        if(workLimit==0):
+            workLimit = 1
 
         d = (netsize) / workLimit
         print "size" + str(net.size()) + str(d)
